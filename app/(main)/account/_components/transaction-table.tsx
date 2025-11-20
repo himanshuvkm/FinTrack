@@ -69,7 +69,7 @@ const RECURRING_INTERVALS = {
   YEARLY: "Yearly",
 };
 
-interface Transaction {
+export interface Transaction {
   id: string;
   date: string;
   description: string;
@@ -149,18 +149,17 @@ export default function TransactionTable({
   }, [transactions, searchTerm, typeFilter, recurringFilter, sortConfig]);
 
   // Pagination calculations
-     const totalPages = Math.ceil(
-       filteredAndSortedTransactions.length / ITEMS_PER_PAGE
-     );
+  const totalPages = Math.ceil(
+    filteredAndSortedTransactions.length / ITEMS_PER_PAGE
+  );
 
-
-     const paginatedTransactions = useMemo(() => {
-       const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-       return filteredAndSortedTransactions.slice(
-         startIndex,
-         startIndex + ITEMS_PER_PAGE
-       );
-     }, [filteredAndSortedTransactions, currentPage]);
+  const paginatedTransactions = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredAndSortedTransactions.slice(
+      startIndex,
+      startIndex + ITEMS_PER_PAGE
+    );
+  }, [filteredAndSortedTransactions, currentPage]);
 
   const handleSort = (field: string) => {
     setSortConfig((current) => ({
@@ -199,7 +198,6 @@ export default function TransactionTable({
         : [...current, id]
     );
   };
-  
 
   const handleSelectAll = () => {
     setSeletedIds((current) =>
@@ -208,9 +206,9 @@ export default function TransactionTable({
         : paginatedTransactions.map((t) => t.id)
     );
   };
-    const handlePageChange = (newPage:number) => {
+  const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
-    setSeletedIds([]); 
+    setSeletedIds([]);
   };
 
   const handleClearFilters = () => {
@@ -455,12 +453,12 @@ export default function TransactionTable({
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
-                    <DropdownMenuTrigger>
-                      <Button variant="ghost" className=" h-8 w-8 p-0">
-                        {" "}
-                        <MoreHorizontal className="h-4 w-4" />{" "}
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
+
                     <DropdownMenuContent>
                       <DropdownMenuItem
                         className="cursor-pointer"

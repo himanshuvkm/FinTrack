@@ -164,73 +164,57 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="py-16 md:py-24 bg-gray-50">
-        <div className="container mx-auto px-4">
+     {/* How It Works Section */}
+      <section className="py-24 bg-white border-y border-slate-100 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16 max-w-xl mx-auto"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={itemVariants}
+            className="text-center mb-20"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-slate-900 tracking-tight">
               How It Works
             </h2>
-            <p className="text-gray-600 text-lg md:text-xl">
-              Get started in 3 simple steps
+            <p className="text-slate-500 text-lg">
+              Financial freedom in 3 simple steps
             </p>
           </motion.div>
 
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            className="relative grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12"
-          >
-            {/* Vertical Lines */}
-            <div className="hidden md:block absolute inset-0 pointer-events-none">
-              <div className="absolute top-20 left-1/3 w-px h-full bg-gradient-to-b from-blue-200 to-green-200 transform -translate-x-1/2" />
-              <div className="absolute top-20 left-2/3 w-px h-full bg-gradient-to-b from-blue-200 to-green-200 transform -translate-x-1/2" />
-            </div>
-
-            {/* Horizontal Line */}
-            <div className="hidden md:block absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-blue-200 to-green-200 transform -translate-y-1/2" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+            {/* Connected Dashed Line */}
+            <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 border-t-2 border-dashed border-blue-100" />
 
             {howItWorksData.map((step, index) => (
               <motion.div
                 key={index}
-                variants={itemVariants}
-                className="relative text-center flex justify-center"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.2 }}
+                viewport={{ once: true }}
+                className="relative flex flex-col items-center text-center group"
               >
-                <div>
-                  {/* Step number badge */}
-                  <div className="mx-auto mb-6 w-12 h-12 bg-gradient-to-br from-blue-600 to-green-500 rounded-full flex items-center justify-center shadow-lg">
-                    <span className="text-white font-bold text-sm">
-                      {index + 1}
-                    </span>
-                  </div>
-
-                  {/* Card */}
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 max-w-sm min-h-[240px] mx-auto">
-                    <div className="mb-4">
-                      <div className="w-10 h-10 mx-auto bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                        <div className="text-blue-600">{step.icon}</div>
-                      </div>
+                <div className="relative z-10 mb-8">
+                  <div className="w-24 h-24 bg-white rounded-full border-4 border-blue-50 flex items-center justify-center shadow-sm group-hover:border-blue-100 transition-colors duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-green-500 rounded-full flex items-center justify-center text-white shadow-inner">
+                      {step.icon}
                     </div>
-
-                    <h3 className="text-xl font-semibold mb-3 text-gray-900">
-                      {step.title}
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed text-sm">
-                      {step.description}
-                    </p>
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-slate-900 rounded-full flex items-center justify-center text-white font-bold text-sm border-2 border-white shadow-md">
+                    {index + 1}
                   </div>
                 </div>
+
+                <h3 className="text-xl font-bold text-slate-900 mb-3">
+                  {step.title}
+                </h3>
+                <p className="text-slate-500 max-w-xs leading-relaxed">
+                  {step.description}
+                </p>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 

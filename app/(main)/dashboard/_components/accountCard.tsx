@@ -27,7 +27,7 @@ export interface Account {
 interface Props {
   account: Account;
 }
-export default async function AccountCard({ account }: Props) {
+export default function AccountCard({ account }: Props) {
   const { id, name, type, balance, isDefault } = account;
 
   const {
