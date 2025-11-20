@@ -12,6 +12,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -35,6 +44,8 @@ import { categoryColors } from "@/data/category";
 import { format, set } from "date-fns";
 import {
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   ChevronUp,
   Clock,
   MoreHorizontal,
@@ -86,106 +97,122 @@ export default function TransactionTable({
   const [recurringFilter, setRecurringFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-
-  
+  const ITEMS_PER_PAGE = 10;
   // Memoized filtered and sorted transactions
   const filteredAndSortedTransactions = useMemo(() => {
-      let result = [...transactions];
-      
-      // Apply search filter
-      if (searchTerm) {
+    let result = [...transactions];
+
+    // Apply search filter
+    if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       result = result.filter((transaction) =>
         transaction.description?.toLowerCase().includes(searchLower)
-    );
-}
-
-
-// Apply type filter
-if (typeFilter) {
-    result = result.filter((transaction) => transaction.type === typeFilter);
+      );
     }
-    
+
+    // Apply type filter
+    if (typeFilter) {
+      result = result.filter((transaction) => transaction.type === typeFilter);
+    }
+
     // Apply recurring filter
     if (recurringFilter && recurringFilter !== "all") {
-  result = result.filter((transaction) => {
-    if (recurringFilter === "recurring") return transaction.isRecurring;
-    if (recurringFilter === "non-recurring") return !transaction.isRecurring;
-  });
-}
+      result = result.filter((transaction) => {
+        if (recurringFilter === "recurring") return transaction.isRecurring;
+        if (recurringFilter === "non-recurring")
+          return !transaction.isRecurring;
+      });
+    }
 
     // Apply sorting
     result.sort((a: Transaction, b: Transaction) => {
-        let comparison = 0;
-        
-        switch (sortConfig.field) {
-            case "date":
-                comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
-                break;
-                case "amount":
-                    comparison = parseFloat(a.amount) - parseFloat(b.amount);
-                    break;
-                    case "category":
-                        comparison = a.category.localeCompare(b.category);
-                        break;
-                        default:
-                            comparison = 0;
-                        }
-                        
-                        return sortConfig.direction === "asc" ? comparison : -comparison;
-                    });
+      let comparison = 0;
+
+      switch (sortConfig.field) {
+        case "date":
+          comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
+          break;
+        case "amount":
+          comparison = parseFloat(a.amount) - parseFloat(b.amount);
+          break;
+        case "category":
+          comparison = a.category.localeCompare(b.category);
+          break;
+        default:
+          comparison = 0;
+      }
+
+      return sortConfig.direction === "asc" ? comparison : -comparison;
+    });
 
     return result;
-}, [transactions, searchTerm, typeFilter, recurringFilter, sortConfig]);
+  }, [transactions, searchTerm, typeFilter, recurringFilter, sortConfig]);
 
-const handleSort = (field: string) => {
+  // Pagination calculations
+     const totalPages = Math.ceil(
+       filteredAndSortedTransactions.length / ITEMS_PER_PAGE
+     );
+
+
+     const paginatedTransactions = useMemo(() => {
+       const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+       return filteredAndSortedTransactions.slice(
+         startIndex,
+         startIndex + ITEMS_PER_PAGE
+       );
+     }, [filteredAndSortedTransactions, currentPage]);
+
+  const handleSort = (field: string) => {
     setSortConfig((current) => ({
       field,
       direction:
-      current.field === field && current.direction === "asc" ? "desc" : "asc",
+        current.field === field && current.direction === "asc" ? "desc" : "asc",
     }));
-};
+  };
 
-const {
-  loading: deleteLoading,
-  fn: deleteFn,
-  data: deleted,
-} = useFetch(bulkDeleteTransactions);
+  const {
+    loading: deleteLoading,
+    fn: deleteFn,
+    data: deleted,
+  } = useFetch(bulkDeleteTransactions);
 
-const handleBulkDelete = async () => {
-  if (
-    !window.confirm(
-      `Are you sure you want to delete ${seletedIds.length} transactions?`
+  const handleBulkDelete = async () => {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete ${seletedIds.length} transactions?`
+      )
     )
-  )
-    return;
+      return;
 
-  deleteFn(seletedIds);
-
-};
+    deleteFn(seletedIds);
+  };
   useEffect(() => {
     if (deleted && !deleteLoading) {
       toast.success("Transactions deleted successfully");
-
     }
   }, [deleted, deleteLoading]);
 
-const handleSelect = (id: string) => {
+  const handleSelect = (id: string) => {
     setSeletedIds((current) =>
-        current.includes(id)
-    ? current.filter((items) => items !== id)
-    : [...current, id]
-);
-};
-
-const handleSelectAll = () => {
-    setSeletedIds((current) =>
-      current.length === filteredAndSortedTransactions.length
-        ? []
-        : filteredAndSortedTransactions.map((t) => t.id)
+      current.includes(id)
+        ? current.filter((items) => items !== id)
+        : [...current, id]
     );
   };
- 
+  
+
+  const handleSelectAll = () => {
+    setSeletedIds((current) =>
+      current.length === paginatedTransactions.length
+        ? []
+        : paginatedTransactions.map((t) => t.id)
+    );
+  };
+    const handlePageChange = (newPage:number) => {
+    setCurrentPage(newPage);
+    setSeletedIds([]); 
+  };
+
   const handleClearFilters = () => {
     setSearchTerm("");
     setTypeFilter("");
@@ -193,102 +220,100 @@ const handleSelectAll = () => {
     setCurrentPage(1);
   };
 
-  
-
   return (
     <div className="space-y-4 px-3">
-        {deleteLoading && (
+      {deleteLoading && (
         <BarLoader className="mt-4" width={"100%"} color="#9333ea" />
       )}
-     <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-gray-200">
-  {/* Search Input */}
-  <div className="relative flex-1 ">
-    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-    <Input
-      placeholder="Search transactions..."
-      value={searchTerm}
-      onChange={(e) => {
-        setSearchTerm(e.target.value);
-        setCurrentPage(1);
-      }}
-      className="pl-9 h-10 border-gray-300 focus:border-blue-500"
-    />
-  </div>
+      <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-gray-200">
+        {/* Search Input */}
+        <div className="relative flex-1 ">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search transactions..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="pl-9 h-10 border-gray-300 focus:border-blue-500"
+          />
+        </div>
 
-  {/* Filters */}
-  <div className="flex items-center gap-2">
-    {/* Type Filter */}
-    <Select
-      value={typeFilter}
-      onValueChange={(value) => {
-        setTypeFilter(value);
-        setCurrentPage(1);
-      }}
-    >
-      <SelectTrigger className="w-[120px] h-10 border-gray-300">
-        <SelectValue placeholder="All Types" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="all">All Types</SelectItem>
-        <SelectItem value="INCOME">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full" />
-            Income
-          </div>
-        </SelectItem>
-        <SelectItem value="EXPENSE">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-red-500 rounded-full" />
-            Expense
-          </div>
-        </SelectItem>
-      </SelectContent>
-    </Select>
+        {/* Filters */}
+        <div className="flex items-center gap-2">
+          {/* Type Filter */}
+          <Select
+            value={typeFilter}
+            onValueChange={(value) => {
+              setTypeFilter(value);
+              setCurrentPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[120px] h-10 border-gray-300">
+              <SelectValue placeholder="All Types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="INCOME">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  Income
+                </div>
+              </SelectItem>
+              <SelectItem value="EXPENSE">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full" />
+                  Expense
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
 
-    {/* Recurring Filter */}
-    <Select
-      value={recurringFilter}
-      onValueChange={(value) => {
-        setRecurringFilter(value);
-        setCurrentPage(1);
-      }}
-    >
-      <SelectTrigger className="w-[140px] h-10 border-gray-300">
-        <SelectValue placeholder="All Transactions" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="all">All Transactions</SelectItem>
-        <SelectItem value="recurring">Recurring Only</SelectItem>
-        <SelectItem value="non-recurring">Non-recurring Only</SelectItem>
-      </SelectContent>
-    </Select>
+          {/* Recurring Filter */}
+          <Select
+            value={recurringFilter}
+            onValueChange={(value) => {
+              setRecurringFilter(value);
+              setCurrentPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[140px] h-10 border-gray-300">
+              <SelectValue placeholder="All Transactions" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Transactions</SelectItem>
+              <SelectItem value="recurring">Recurring Only</SelectItem>
+              <SelectItem value="non-recurring">Non-recurring Only</SelectItem>
+            </SelectContent>
+          </Select>
 
-    {/* Clear Filters Button */}
-    {(searchTerm || typeFilter || recurringFilter ) && (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleClearFilters}
-        className="h-10 text-gray-600 hover:text-gray-900"
-      >
-        <X className="h-4 w-4 mr-1" />
-      </Button>
-    )}
+          {/* Clear Filters Button */}
+          {(searchTerm || typeFilter || recurringFilter) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClearFilters}
+              className="h-10 text-gray-600 hover:text-gray-900"
+            >
+              <X className="h-4 w-4 mr-1" />
+            </Button>
+          )}
 
-    {/* Bulk Delete Button */}
-    {seletedIds.length > 0 && (
-      <Button
-        variant="destructive"
-        size="sm"
-        onClick={handleBulkDelete}
-        className="h-10 ml-2"
-      >
-        <Trash className="h-4 w-4 mr-2" />
-        Delete ({seletedIds.length})
-      </Button>
-    )}
-  </div>
-</div>
+          {/* Bulk Delete Button */}
+          {seletedIds.length > 0 && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleBulkDelete}
+              className="h-10 ml-2"
+            >
+              <Trash className="h-4 w-4 mr-2" />
+              Delete ({seletedIds.length})
+            </Button>
+          )}
+        </div>
+      </div>
 
       <Table>
         <TableHeader>
@@ -297,8 +322,8 @@ const handleSelectAll = () => {
               <Checkbox
                 onCheckedChange={handleSelectAll}
                 checked={
-                  seletedIds.length === filteredAndSortedTransactions.length &&
-                  filteredAndSortedTransactions.length > 0
+                  seletedIds.length === paginatedTransactions.length &&
+                  paginatedTransactions.length > 0
                 }
               />
             </TableHead>
@@ -350,21 +375,20 @@ const handleSelectAll = () => {
               </div>
             </TableHead>
 
-
             <TableHead>Recurring</TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
 
         <TableBody>
-          {filteredAndSortedTransactions.length === 0 ? (
+          {paginatedTransactions.length === 0 ? (
             <TableRow>
               <TableCell colSpan={7} className="text-center py-4">
                 No transactions found.
               </TableCell>
             </TableRow>
           ) : (
-            filteredAndSortedTransactions.map((t) => (
+            paginatedTransactions.map((t) => (
               <TableRow key={t.id}>
                 <TableCell>
                   <Checkbox
@@ -375,7 +399,7 @@ const handleSelectAll = () => {
 
                 <TableCell>{format(new Date(t.date), "PP")}</TableCell>
                 <TableCell>{t.description}</TableCell>
-                <TableCell className="capatalize">
+                <TableCell className="capitalize">
                   <span
                     style={{
                       background: categoryColors[t.category],
@@ -461,6 +485,31 @@ const handleSelectAll = () => {
           )}
         </TableBody>
       </Table>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
