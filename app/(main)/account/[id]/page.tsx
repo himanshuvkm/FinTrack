@@ -22,7 +22,7 @@ export default async function Page({
       <div className="flex flex-col sm:flex-row gap-6 sm:items-end justify-between bg-gradient-to-r from-blue-50 via-purple-50 to-green-50 rounded-2xl p-6 border border-gray-200">
         {/* Account Info */}
         <div className="flex-1">
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight bg-gradient-to-r from-blue-600 via-purple-600 to-green-500 bg-clip-text text-transparent capitalize mb-2">
+          <h1 className="text-4xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 via-purple-600 to-green-500 bg-clip-text text-transparent capitalize mb-2">
             {account.name}
           </h1>
           <p className="text-gray-600 text-lg">

@@ -56,7 +56,7 @@ export default function Header() {
               </Button>
             </Link>
 
-            <Link href="/transaction/create">
+            <Link href="/transactions/create">
               <Button
                 className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-green-500 
                 text-white rounded-xl hover:from-blue-700 hover:to-green-600 

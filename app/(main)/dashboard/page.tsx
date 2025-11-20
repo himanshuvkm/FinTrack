@@ -4,9 +4,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Plus } from "lucide-react";
 import { GetUserAccounts } from "@/actions/dashboard";
 import AccountCard ,{Account}from "./_components/accountCard";
+import { getBudgetData } from "@/actions/budjet";
+import BudgetProgress from "./_components/BudgetProgress";
+
+
+
 export default async function Dashboardpage() {
 
-const accounts = await GetUserAccounts();
+const data = await GetUserAccounts()
+const accounts = data.success ? data.data : [];
+
+const defaultAccount = accounts?.find((account:Account) => account.isDefault);
+ let budgetData = null;
+ if(defaultAccount){
+  budgetData = await getBudgetData(defaultAccount.id);
+ }
+ 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 p-6">
@@ -15,7 +28,14 @@ const accounts = await GetUserAccounts();
 
     {/* Budget Progress Section */}
     <div className="space-y-4">
-      {/* Add your budget progress component here */}
+     {
+      defaultAccount && (
+        <BudgetProgress
+        initialBudget={budgetData?.budget}
+        currentExpenses={budgetData?.currentExpenses||0}
+        />
+      )
+     }
     </div>
 
     {/* Overview Section */}

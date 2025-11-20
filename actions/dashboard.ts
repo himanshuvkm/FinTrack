@@ -120,7 +120,7 @@ try {
         }
     })
      const serializedAccount = accounts.map(serializeTransaction);
-    return  serializedAccount ;
+     return { success: true, data: serializedAccount };
     
 } catch (error:any) {
     const message = error instanceof Error ? error.message : String(error);
