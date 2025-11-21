@@ -6,7 +6,7 @@ import useFetch from "@/hooks/usefetch";
 import { transactionSchema } from "@/lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { createTransaction, FormDataTransaction } from "@/actions/transaction";
+import { createTransaction, FormDataTransaction, updateTransaction } from "@/actions/transaction";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -68,7 +68,7 @@ export default function AddTransactionForm({
 }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const editId = searchParams.get("edit") ?? "";
+  const editId = searchParams.get("edit")
 
   // ------------------------
   // REACT HOOK FORM
@@ -109,7 +109,7 @@ export default function AddTransactionForm({
 
 
   const { loading: transactionLoading, fn: transactionFn ,data: transactionResult} =
-    useFetch(createTransaction);
+    useFetch(editMode ? updateTransaction : createTransaction);
 
   const type = watch("type");
   const isRecurring = watch("isRecurring");
@@ -154,11 +154,11 @@ useEffect(() => {
   if (handledRef.current) return;
 
   if (transactionResult && !transactionLoading) {
-    handledRef.current = true; // mark handled immediately
+    handledRef.current = true; 
 
     toast.success(editMode ? "Transaction updated successfully" : "Transaction created successfully");
 
-    // don't call reset() if navigating
+    
     const accountId = (transactionResult as any)?.data?.accountId;
     if (accountId) {
       router.push(`/account/${accountId}`);
@@ -178,15 +178,15 @@ useEffect(() => {
       >
         {/* HEADER */}
         <div className="rounded-t-xl bg-gradient-to-r from-blue-50 to-emerald-50 px-6 py-8">
-          <h2 className="text-xl font-semibold text-center">
-            Create New Transaction
+          <h2 className="text-xl font-bold text-center">
+           { editMode ? "Edit Transaction" : "Create New Transaction" }
           </h2>
           <p className="text-sm text-muted-foreground text-center">
             Add a new income or expense to your account
           </p>
         </div>
-
-        <ReceiptScanner onScanComplete={handleScanComplete} />
+ 
+        {!editMode && <ReceiptScanner onScanComplete={handleScanComplete} />}
 
         <div className="px-6 space-y-8">
           {/* TYPE */}

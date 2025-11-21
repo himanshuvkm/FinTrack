@@ -454,7 +454,7 @@ export default function TransactionTable({
                       <DropdownMenuItem
                         className="cursor-pointer"
                         onClick={() =>
-                          router.push(`/transaction/create?edit=${t.id}`)
+                          router.push(`/transactions/create?edit=${t.id}`)
                         }
                       >
                         Edit

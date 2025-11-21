@@ -1,12 +1,13 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import  prismaDb  from "@/lib/prisma";
+import  prismaprismaDb  from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import {request} from "@arcjet/next"
 import { aj } from "@/lib/arcjet";
 import { NextRequest } from "next/server";
 import { GoogleGenAI } from "@google/genai";
+import prismaDb from "@/lib/prisma";
 
 export type FormDataTransaction = {
   type: "INCOME" | "EXPENSE";
@@ -58,7 +59,7 @@ const decision = await aj.protect(req, {
 
 
 
-    const user = await prismaDb.user.findUnique({
+    const user = await prismaprismaDb.user.findUnique({
       where: { clerkUserId: userId },
     });
 
@@ -66,7 +67,7 @@ const decision = await aj.protect(req, {
       throw new Error("User not found");
     }
 
-    const account = await prismaDb.account.findUnique({
+    const account = await prismaprismaDb.account.findUnique({
       where: {
         id: data.accountId,
         userId: user.id,
@@ -82,7 +83,7 @@ const decision = await aj.protect(req, {
     const newBalance = account.balance.toNumber() + balanceChange;
 
     // Create transaction and update account balance
-    const transaction = await prismaDb.$transaction(async (tx) => {
+    const transaction = await prismaprismaDb.$transaction(async (tx) => {
       const newTransaction = await tx.transaction.create({
         data: {
           ...data,
@@ -198,3 +199,134 @@ export async function scanReceipt(file: Blob) {
     throw new Error("Failed to scan receipt");
   }
 }
+
+export async function getTransaction(id:any) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const user = await prismaDb.user.findUnique({
+    where: { clerkUserId: userId },
+  });
+
+  if (!user) throw new Error("User not found");
+
+  const transaction = await prismaDb.transaction.findUnique({
+    where: {
+      id,
+      userId: user.id,
+    },
+  });
+
+  if (!transaction) throw new Error("Transaction not found");
+
+  return serializeAmount(transaction);
+}
+
+export async function updateTransaction(id:any, data:FormDataTransaction) {
+  try {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized");
+
+    const user = await prismaDb.user.findUnique({
+      where: { clerkUserId: userId },
+    });
+
+    if (!user) throw new Error("User not found");
+
+    // Get original transaction to calculate balance change
+    const originalTransaction = await prismaDb.transaction.findUnique({
+      where: {
+        id,
+        userId: user.id,
+      },
+      include: {
+        account: true,
+      },
+    });
+
+    if (!originalTransaction) throw new Error("Transaction not found");
+
+    // Calculate balance changes
+    const oldBalanceChange =
+      originalTransaction.type === "EXPENSE"
+        ? -originalTransaction.amount.toNumber()
+        : originalTransaction.amount.toNumber();
+
+    const newBalanceChange =
+      data.type === "EXPENSE" ? -parseFloat(data.amount) : parseFloat(data.amount);
+
+    const netBalanceChange = newBalanceChange - oldBalanceChange;
+
+    // Update transaction and account balance in a transaction
+    const transaction = await prismaDb.$transaction(async (tx) => {
+      const updated = await tx.transaction.update({
+        where: {
+          id,
+          userId: user.id,
+        },
+        data: {
+          ...data,
+          nextRecurringDate:
+            data.isRecurring && data.recurringInterval
+              ? calculateNextRecurringDate({ startDate: data.date, interval: data.recurringInterval })
+              : null,
+        },
+      });
+
+      // Update account balance
+      await tx.account.update({
+        where: { id: data.accountId },
+        data: {
+          balance: {
+            increment: netBalanceChange,
+          },
+        },
+      });
+
+      return updated;
+    });
+
+    revalidatePath("/dashboard");
+    revalidatePath(`/account/${data.accountId}`);
+
+    return { success: true, data: serializeAmount(transaction) };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { success: false, error: message };
+  }
+}
+
+// Get User Transactions
+export async function getUserTransactions(query = {}) {
+  try {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized");
+
+    const user = await prismaDb.user.findUnique({
+      where: { clerkUserId: userId },
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const transactions = await prismaDb.transaction.findMany({
+      where: {
+        userId: user.id,
+        ...query,
+      },
+      include: {
+        account: true,
+      },
+      orderBy: {
+        date: "desc",
+      },
+    });
+
+    return { success: true, data: transactions };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { success: false, error: message };
+  }
+}
+
