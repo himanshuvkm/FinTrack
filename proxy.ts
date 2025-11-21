@@ -8,8 +8,13 @@ const isProtectedRoute = createRouteMatcher([
     "/transaction(.*)"
 ])
 
+const ARCJET_KEY = process.env.ARCJET_KEY;
+if (!ARCJET_KEY) {
+  throw new Error('ARCJET_KEY environment variable is required');
+}
+
 const aj = arcjet({
-  key: process.env.ARCJET_KEY,
+  key: ARCJET_KEY,
   rules:[
     shield({
       mode:"LIVE",
