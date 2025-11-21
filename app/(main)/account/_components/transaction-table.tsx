@@ -66,6 +66,7 @@ export interface Transaction {
   description: string;
   category: string;
   amount: string;
+  accountId: string;
   type: "INCOME" | "EXPENSE";
   isRecurring: boolean;
   recurringInterval?: string;

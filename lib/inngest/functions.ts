@@ -1,15 +1,63 @@
 import { inngest } from "./client";
-import prismaprismaDb from "@/lib/prisma";
+import prismaDb from "@/lib/prisma";
 import EmailTemplate from "@/emails/template";
 import { sendEmail } from "@/actions/send-email";
-import prismaDb from "@/lib/prisma";
+import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+
+type TransactionRow = {
+  id: string;
+  userId: string;
+  date: Date;
+  category: string;
+  type: "EXPENSE" | "INCOME";
+  // pris or number or object with toNumber()
+  amount: number | { toNumber: () => number };
+};
+
+export type MonthlyStats = {
+  totalIncome: number;
+  totalExpenses: number;
+  byCategory: Record<string, number>;
+  transactionCount: number;
+};
+
+type BudgetAlertData = {
+  percentageUsed: number;
+  budgetAmount: number;
+  totalExpenses: number;
+};
+
+
+
+/***** Helper runtime type guards *****/
+function toNumber(amount: number | { toNumber: () => number }): number {
+  if (typeof amount === "number") return amount;
+  if (typeof (amount )?.toNumber === "function") {
+  
+    return (amount ).toNumber();
+  }
+  if (typeof (amount as { toNumber?: unknown })?.toNumber === "function") {
+    return (amount as { toNumber: () => number }).toNumber();
+  }
+  throw new Error("Unsupported amount type");
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return (
+    Array.isArray(value) &&
+    value.every((v) => typeof v === "string")
+  );
+}
+
 
 export const checkBudgetAlerts = inngest.createFunction(
    { id: "check-budget-alerts", name: "Check Budget Alerts" },
   { cron: "0 */6 * * *" }, // Runs every 6 hours
   async ({ step }) => {
     const budgets = await step.run("fetch-budgets", async () => {
-      return prismaprismaDb.budget.findMany({
+      return prismaDb.budget.findMany({
         include: {
           user: {
             include: {
@@ -31,7 +79,7 @@ export const checkBudgetAlerts = inngest.createFunction(
         const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
 
         // ---- Fetch expenses only for default account ----
-        const expenses = await prismaprismaDb.transaction.aggregate({
+        const expenses = await prismaDb.transaction.aggregate({
           where: {
             userId: budget.userId,
             accountId: defaultAccount.id,
@@ -71,7 +119,7 @@ export const checkBudgetAlerts = inngest.createFunction(
             }),
           });
 
-          await prismaprismaDb.budget.update({
+          await prismaDb.budget.update({
             where: { id: budget.id },
             data: { lastAlertSent: now },
           });
@@ -236,3 +284,155 @@ function isTransactionDue(transaction: any) {
   // Compare with nextDue date
   return nextDue <= today;
 }
+
+
+
+export async function generateFinancialInsights(
+  stats: MonthlyStats,
+  month: string
+) {
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash", 
+    generationConfig: {
+      responseMimeType: "application/json", 
+    },
+  });
+  const expenseList =
+    stats.byCategory && Object.keys(stats.byCategory).length > 0
+      ? Object.entries(stats.byCategory)
+          .map(([category, amount]) => `${category}: $${Number(amount)}`)
+          .join(", ")
+      : "No expense categories available";
+
+  const prompt = `
+    Analyze this financial data and provide 3 concise, actionable insights.
+    Focus on spending patterns and practical advice.
+    Keep it friendly and conversational.
+
+    Financial Data for ${month}:
+    - Total Income: $${stats.totalIncome}
+    - Total Expenses: $${stats.totalExpenses}
+    - Net Income: $${stats.totalIncome - stats.totalExpenses}
+    - Expense Categories: ${expenseList}
+
+    Respond ONLY with a JSON array, like:
+    ["insight 1", "insight 2", "insight 3"]
+    Format the response as a JSON array of strings.
+  `;
+
+  try {
+   const result = await model.generateContent(prompt);
+
+    const text = result.response.text();
+
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("Error generating insights:", error);
+
+    return [
+      "Your highest expense category this month might need attention.",
+      "Consider setting up a budget for better financial management.",
+      "Track your recurring expenses to identify potential savings.",
+    ];
+  }
+}
+
+
+
+export async function getMonthlyStats(userId: string, month: Date) {
+
+  const startDate = new Date(month.getFullYear(), month.getMonth(), 1, 0, 0, 0, 0);
+
+  const endDate = new Date(month.getFullYear(), month.getMonth() + 1, 0, 23, 59, 59, 999);
+
+  const transactions = (await prismaDb.transaction.findMany({
+    where: {
+      userId,
+      date: {
+        gte: startDate,
+        lte: endDate,
+      },
+    },
+  })) as TransactionRow[]; // cast to our local type
+
+  const initial: MonthlyStats = {
+    totalExpenses: 0,
+    totalIncome: 0,
+    byCategory: {},
+    transactionCount: transactions.length,
+  };
+
+  return transactions.reduce<MonthlyStats>((stats, t) => {
+    let amountNum: number;
+    try {
+      amountNum = toNumber(t.amount);
+    } catch (err) {
+      // if amount parsing fails, skip this transaction but log it
+      console.warn(`Skipping transaction ${t.id} due to unsupported amount type`, err);
+      return stats;
+    }
+
+    if (t.type === "EXPENSE") {
+      stats.totalExpenses += amountNum;
+      stats.byCategory[t.category] = (stats.byCategory[t.category] || 0) + amountNum;
+    } else {
+      stats.totalIncome += amountNum;
+    }
+    return stats;
+  }, initial);
+}
+
+/***** Inngest scheduled function (typed-ish) *****/
+export const generateMonthlyReports = inngest.createFunction(
+  {
+    id: "generate-monthly-reports",
+    name: "Generate Monthly Reports",
+  },
+  { cron: "0 0 1 * *" }, // First day of each month at 00:00
+  async ({ step }: { step: any }) => {
+    const users = await step.run("fetch-users", async () => {
+      return await prismaDb.user.findMany({
+        include: { accounts: true },
+      });
+    });
+
+    for (const user of users) {
+      // guard user.email and user.id existence
+      if (!user?.id || !user?.email) {
+        console.warn("Skipping user with missing id or email", user);
+        continue;
+      }
+
+      await step.run(`generate-report-${user.id}`, async () => {
+        const ref = new Date();
+        ref.setMonth(ref.getMonth() - 1);
+        // copy the date to avoid mutating shared Date object
+        const lastMonth = new Date(ref.getTime());
+
+        const stats = await getMonthlyStats(user.id, lastMonth);
+        const monthName = lastMonth.toLocaleString("default", { month: "long" });
+
+        // Generate AI insights (safe)
+        const insights = await generateFinancialInsights(stats, monthName);
+
+        // Build the email react element — EmailTemplate should accept props typed earlier
+        await sendEmail({
+          to: user.email,
+          subject: `Your Monthly Financial Report - ${monthName}`,
+          react: EmailTemplate({
+            userName: user.name ?? "",
+            type: "monthly-report",
+            data: {
+              stats,
+              month: monthName,
+              insights,
+            },
+          }),
+        });
+      });
+    }
+
+    return { processed: users.length };
+  }
+);

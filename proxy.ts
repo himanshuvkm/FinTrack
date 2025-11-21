@@ -1,3 +1,4 @@
+import arcjet, { createMiddleware, detectBot, shield } from '@arcjet/next'
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { createRouteLoader } from 'next/dist/client/route-loader'
 
@@ -7,7 +8,20 @@ const isProtectedRoute = createRouteMatcher([
     "/transaction(.*)"
 ])
 
-export default clerkMiddleware(async(auth,req)=>{
+const aj = arcjet({
+  key: process.env.ARCJET_KEY,
+  rules:[
+    shield({
+      mode:"LIVE",
+    }),
+    detectBot({
+      mode:"LIVE",
+      allow:["CATEGORY:SEARCH_ENGINE","GO_HTTP"]
+    })
+  ]
+});
+
+ clerkMiddleware(async(auth,req)=>{
   const {userId}= await auth()
   if(!userId && isProtectedRoute(req)){
     const {redirectToSignIn} = await auth()
@@ -23,3 +37,5 @@ export const config = {
     '/(api|trpc)(.*)',
   ],
 }
+
+export default createMiddleware(aj, clerkMiddleware);

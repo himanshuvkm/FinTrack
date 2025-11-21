@@ -1,3 +1,4 @@
+import React, { JSX } from "react";
 import {
   Body,
   Container,
@@ -8,6 +9,7 @@ import {
   Section,
   Text,
 } from "@react-email/components";
+
 type BudgetAlertData = {
   percentageUsed: number;
   budgetAmount: number;
@@ -24,88 +26,98 @@ type MonthlyReportData = {
   insights?: string[];
 };
 
+type EmailType = "monthly-report" | "budget-alert";
+
+interface EmailTemplateProps {
+  userName?: string;
+  type?: EmailType;
+  // data can be partial because you default it to {}
+  data?: Partial<MonthlyReportData> | Partial<BudgetAlertData> | Record<string, any>;
+}
+
 export default function EmailTemplate({
   userName = "",
   type = "monthly-report",
   data = {},
-}) {
+}: EmailTemplateProps): JSX.Element | null {
   /** -------------------------------
    *  MONTHLY REPORT TEMPLATE
    * --------------------------------
    */
-  //   if (type === "monthly-report") {
-  //     const month = data?.month ?? "";
-  //     const stats = data?.stats ?? {};
-  //     const insights = data?.insights ?? [];
+  if (type === "monthly-report") {
+    const month: string = (data as Partial<MonthlyReportData>)?.month ?? "";
+    const stats: MonthlyReportData["stats"] =
+      (data as Partial<MonthlyReportData>)?.stats ?? ({} as MonthlyReportData["stats"]);
+    const insights: string[] = (data as Partial<MonthlyReportData>)?.insights ?? [];
 
-  //     return (
-  //       <Html>
-  //         <Head />
-  //         <Preview>Your Monthly Financial Report</Preview>
-  //         <Body style={styles.body}>
-  //           <Container style={styles.container}>
-  //             <Heading style={styles.title}>Monthly Financial Report</Heading>
+    return (
+      <Html>
+        <Head />
+        <Preview>Your Monthly Financial Report</Preview>
+        <Body style={styles.body}>
+          <Container style={styles.container}>
+            <Heading style={styles.title}>Monthly Financial Report</Heading>
 
-  //             <Text style={styles.text}>Hello {userName},</Text>
-  //             <Text style={styles.text}>
-  //               Here’s your financial summary for {month}:
-  //             </Text>
+            <Text style={styles.text}>Hello {userName},</Text>
+            <Text style={styles.text}>
+              Here’s your financial summary for {month}:
+            </Text>
 
-  //             {/* Main Stats */}
-  //             <Section style={styles.statsContainer}>
-  //               <div style={styles.stat}>
-  //                 <Text style={styles.text}>Total Income</Text>
-  //                 <Text style={styles.heading}>${stats.totalIncome ?? 0}</Text>
-  //               </div>
+            {/* Main Stats */}
+            <Section style={styles.statsContainer}>
+              <div style={styles.stat}>
+                <Text style={styles.text}>Total Income</Text>
+                <Text style={styles.heading}>${stats.totalIncome ?? 0}</Text>
+              </div>
 
-  //               <div style={styles.stat}>
-  //                 <Text style={styles.text}>Total Expenses</Text>
-  //                 <Text style={styles.heading}>${stats.totalExpenses ?? 0}</Text>
-  //               </div>
+              <div style={styles.stat}>
+                <Text style={styles.text}>Total Expenses</Text>
+                <Text style={styles.heading}>${stats.totalExpenses ?? 0}</Text>
+              </div>
 
-  //               <div style={styles.stat}>
-  //                 <Text style={styles.text}>Net</Text>
-  //                 <Text style={styles.heading}>
-  //                   ${(stats.totalIncome ?? 0) - (stats.totalExpenses ?? 0)}
-  //                 </Text>
-  //               </div>
-  //             </Section>
+              <div style={styles.stat}>
+                <Text style={styles.text}>Net</Text>
+                <Text style={styles.heading}>
+                  ${(stats.totalIncome ?? 0) - (stats.totalExpenses ?? 0)}
+                </Text>
+              </div>
+            </Section>
 
-  //             {/* Category Breakdown */}
-  //             {stats?.byCategory && (
-  //               <Section style={styles.section}>
-  //                 <Heading style={styles.heading}>Expenses by Category</Heading>
+            {/* Category Breakdown */}
+            {stats?.byCategory && (
+              <Section style={styles.section}>
+                <Heading style={styles.heading}>Expenses by Category</Heading>
 
-  //                 {Object.entries(stats.byCategory).map(([cat, amount]) => (
-  //                   <div key={cat} style={styles.row}>
-  //                     <Text style={styles.text}>{cat}</Text>
-  //                     <Text style={styles.text}>${amount}</Text>
-  //                   </div>
-  //                 ))}
-  //               </Section>
-  //             )}
+                {Object.entries(stats.byCategory).map(([cat, amount]) => (
+                  <div key={cat} style={styles.row}>
+                    <Text style={styles.text}>{cat}</Text>
+                    <Text style={styles.text}>${amount}</Text>
+                  </div>
+                ))}
+              </Section>
+            )}
 
-  //             {/* Insights */}
-  //             {insights?.length > 0 && (
-  //               <Section style={styles.section}>
-  //                 <Heading style={styles.heading}>Welth Insights</Heading>
-  //                 {insights.map((insight, i) => (
-  //                   <Text key={i} style={styles.text}>
-  //                     • {insight}
-  //                   </Text>
-  //                 ))}
-  //               </Section>
-  //             )}
+            {/* Insights */}
+            {insights?.length > 0 && (
+              <Section style={styles.section}>
+                <Heading style={styles.heading}>Welth Insights</Heading>
+                {insights.map((insight, i) => (
+                  <Text key={i} style={styles.text}>
+                    • {insight}
+                  </Text>
+                ))}
+              </Section>
+            )}
 
-  //             <Text style={styles.footer}>
-  //               Thank you for using Welth. Stay consistent to improve your
-  //               financial health!
-  //             </Text>
-  //           </Container>
-  //         </Body>
-  //       </Html>
-  //     );
-  //   }
+            <Text style={styles.footer}>
+              Thank you for using Welth. Stay consistent to improve your
+              financial health!
+            </Text>
+          </Container>
+        </Body>
+      </Html>
+    );
+  }
 
   /** -------------------------------
    *  BUDGET ALERT TEMPLATE
@@ -157,7 +169,7 @@ export default function EmailTemplate({
 /* ------------------------
    GLOBAL EMAIL STYLES
 ------------------------ */
-const styles = {
+const styles: { [k: string]: React.CSSProperties } = {
   body: {
     backgroundColor: "#f6f9fc",
     fontFamily: "-apple-system, sans-serif",

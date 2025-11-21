@@ -9,8 +9,8 @@ import { revalidatePath } from "next/cache";
     if (obj.balance) {
         serialized.balance = obj.balance.toNumber();
     }
-    if (obj.ammount) {
-        serialized.ammount = obj.ammount.toNumber();
+    if (obj.amount) {
+        serialized.amount = obj.amount.toNumber();
     }
     return serialized;
     };
@@ -127,4 +127,25 @@ try {
     return { success: false, error: message };
 }
 
+}
+
+export async function getDashboardData() {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const user = await prismaDb.user.findUnique({
+    where: { clerkUserId: userId },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  // Get all user transactions
+  const transactions = await prismaDb.transaction.findMany({
+    where: { userId: user.id },
+    orderBy: { date: "desc" },
+  });
+
+  return transactions.map(serializeTransaction);
 }

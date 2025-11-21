@@ -1,20 +1,26 @@
-import React from "react";
+import React, { Suspense } from "react";
 import CreateAccountDrawer from "@/components/ui/create-account-drawer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus } from "lucide-react";
-import { GetUserAccounts } from "@/actions/dashboard";
+import { getDashboardData, GetUserAccounts } from "@/actions/dashboard";
 import AccountCard ,{Account}from "./_components/accountCard";
 import { getBudgetData } from "@/actions/budjet";
 import BudgetProgress from "./_components/BudgetProgress";
+import { DashboardOverview } from "./_components/transaction-overview";
+import { getAccountWithTransaction } from "@/actions/account";
 
 
 
 export default async function Dashboardpage() {
 
-const data = await GetUserAccounts()
-const accounts = data.success ? data.data : [];
+const [data, transactions] = await Promise.all([
+    GetUserAccounts(),
+    getDashboardData(),
+  ]);
 
-const defaultAccount = accounts?.find((account:Account) => account.isDefault);
+const accounts: Account[] = data && data.success && Array.isArray(data.data) ? (data.data as Account[]) : [];
+
+const defaultAccount = accounts.find((account: Account) => account.isDefault);
  let budgetData = null;
  if(defaultAccount){
   budgetData = await getBudgetData(defaultAccount.id);
@@ -40,7 +46,12 @@ const defaultAccount = accounts?.find((account:Account) => account.isDefault);
 
     {/* Overview Section */}
     <div className="space-y-4">
-      {/* Add your overview component here */}
+     <Suspense>
+      <DashboardOverview
+        accounts={accounts}
+        transactions={transactions}
+      />
+     </Suspense>
     </div>
 
     {/* Account Grid */}
