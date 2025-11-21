@@ -181,7 +181,7 @@ export async function scanReceipt(file: Blob) {
     const responseText = result.text;
 
     // Remove markdown ```json blocks etc.
-    const cleanedText = responseText
+    const cleanedText = (responseText || "")
       .replace(/```json|```/g, "")
       .trim();
 
