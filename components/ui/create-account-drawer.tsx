@@ -134,7 +134,7 @@ useEffect(() => {
             Account Type
           </label>
           <Select
-            onValueChange={(value) => setValue("type", value)}
+            onValueChange={(value) => setValue("type", value as "CURRENT" | "SAVINGS")}
             defaultValue={watch("type")}
           >
             <SelectTrigger 
