@@ -7,8 +7,9 @@ import { ClerkProvider } from "@clerk/nextjs";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "FinTrack",
-  description: "FinTrack is a full-stack AI Finance Platform designed to help users seamlessly manage their income, expenses, budgets, and overall financial health.",
+
+ title: "FinTrack",
+ description: "FinTrack is a full-stack AI Finance Platform designed to help users seamlessly manage their income, expenses, budgets, and overall financial health.",
 };
 
 export default function RootLayout({
