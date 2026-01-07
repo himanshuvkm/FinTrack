@@ -180,13 +180,13 @@ export default function TransactionTable({
       )}
 
       {/* ---------------- Controls ---------------- */}
-      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-white/5 bg-neutral-900 p-4">
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm">
         <h2 id="transactions-title" className="sr-only">
           Transactions Table
         </h2>
 
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500" />
           <Input
             aria-label="Search transactions"
             placeholder="Search transactions…"
@@ -195,15 +195,15 @@ export default function TransactionTable({
               setSearchTerm(e.target.value);
               setCurrentPage(1);
             }}
-            className="h-10 bg-neutral-950 border border-white/5 pl-9 text-white placeholder:text-white/40"
+            className="h-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 pl-9 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
           />
         </div>
 
         <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="h-10 w-[120px] bg-neutral-950 border-white/5 text-white/70">
+          <SelectTrigger className="h-10 w-[120px] bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
             <SelectValue placeholder="All Types" />
           </SelectTrigger>
-          <SelectContent className="bg-neutral-900 border-white/5">
+          <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
             <SelectItem value="all">All</SelectItem>
             <SelectItem value="INCOME">Income</SelectItem>
             <SelectItem value="EXPENSE">Expense</SelectItem>
@@ -211,10 +211,10 @@ export default function TransactionTable({
         </Select>
 
         <Select value={recurringFilter} onValueChange={setRecurringFilter}>
-          <SelectTrigger className="h-10 w-[150px] bg-neutral-950 border-white/5 text-white/70">
+          <SelectTrigger className="h-10 w-[150px] bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
             <SelectValue placeholder="All Transactions" />
           </SelectTrigger>
-          <SelectContent className="bg-neutral-900 border-white/5">
+          <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
             <SelectItem value="all">All</SelectItem>
             <SelectItem value="recurring">Recurring</SelectItem>
             <SelectItem value="non-recurring">One-time</SelectItem>
@@ -231,7 +231,7 @@ export default function TransactionTable({
               setTypeFilter("");
               setRecurringFilter("");
             }}
-            className="text-white/50 hover:text-white"
+            className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -242,6 +242,7 @@ export default function TransactionTable({
             variant="destructive"
             size="sm"
             onClick={() => deleteFn(seletedIds)}
+            className="bg-rose-600 hover:bg-rose-700"
           >
             <Trash className="h-4 w-4 mr-2" />
             Delete ({seletedIds.length})
@@ -250,7 +251,7 @@ export default function TransactionTable({
       </div>
 
       {/* ---------------- Table ---------------- */}
-      <div className="overflow-x-auto rounded-xl border border-white/5 bg-neutral-900">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
         <Table>
           <TableHeader>
             <TableRow>
@@ -273,13 +274,13 @@ export default function TransactionTable({
           <TableBody>
             {paginatedTransactions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="py-6 text-center text-white/40">
+                <TableCell colSpan={7} className="py-6 text-center text-slate-500 dark:text-slate-400">
                   No transactions found.
                 </TableCell>
               </TableRow>
             ) : (
               paginatedTransactions.map((t) => (
-                <TableRow key={t.id} className="hover:bg-neutral-800">
+                <TableRow key={t.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                   <TableCell>
                     <Checkbox
                       checked={seletedIds.includes(t.id)}
@@ -293,18 +294,18 @@ export default function TransactionTable({
                     />
                   </TableCell>
 
-                  <TableCell className="text-white/80">
+                  <TableCell className="text-slate-700 dark:text-slate-300 font-medium">
                     {format(new Date(t.date), "PP")}
                   </TableCell>
 
-                  <TableCell className="text-white/80">
+                  <TableCell className="text-slate-900 dark:text-white font-medium">
                     {t.description}
                   </TableCell>
 
                   <TableCell>
                     <span
                       style={{ background: categoryColors[t.category] }}
-                      className="rounded-full px-2 py-1 text-xs text-white"
+                      className="rounded-full px-2.5 py-1 text-xs font-medium text-white shadow-sm"
                     >
                       {t.category}
                     </span>
@@ -313,8 +314,8 @@ export default function TransactionTable({
                   <TableCell
                     className={
                       t.type === "INCOME"
-                        ? "text-emerald-400"
-                        : "text-rose-400"
+                        ? "text-emerald-600 dark:text-emerald-400 font-semibold"
+                        : "text-rose-600 dark:text-rose-400 font-semibold"
                     }
                   >
                     {t.type === "INCOME" ? "+" : "-"}${t.amount}
@@ -322,7 +323,7 @@ export default function TransactionTable({
 
                   <TableCell>
                     {t.isRecurring ? (
-                      <Badge className="gap-1 bg-purple-500/10 text-purple-300">
+                      <Badge className="gap-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800">
                         <RefreshCw className="h-3 w-3" />
                         {
                           RECURRING_INTERVALS[
@@ -331,7 +332,7 @@ export default function TransactionTable({
                         }
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="gap-1 text-white/60">
+                      <Badge variant="outline" className="gap-1 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700">
                         <Clock className="h-3 w-3" />
                         One-time
                       </Badge>
@@ -341,22 +342,23 @@ export default function TransactionTable({
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="bg-neutral-900 border-white/5">
+                      <DropdownMenuContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
                         <DropdownMenuItem
                           onClick={() =>
                             router.push(`/transactions/create?edit=${t.id}`)
                           }
+                          className="text-slate-700 dark:text-slate-300"
                         >
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => deleteFn([t.id])}
-                          className="text-rose-400"
+                          className="text-rose-600 dark:text-rose-400"
                         >
                           Delete
                         </DropdownMenuItem>
@@ -372,17 +374,18 @@ export default function TransactionTable({
 
       {/* ---------------- Pagination ---------------- */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 text-white/70">
+        <div className="flex items-center justify-center gap-2 text-slate-600 dark:text-slate-400">
           <Button
             variant="outline"
             size="icon"
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((p) => p - 1)}
+            className="border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
-          <span className="text-sm">
+          <span className="text-sm font-medium">
             Page {currentPage} of {totalPages}
           </span>
 
@@ -391,6 +394,7 @@ export default function TransactionTable({
             size="icon"
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage((p) => p + 1)}
+            className="border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

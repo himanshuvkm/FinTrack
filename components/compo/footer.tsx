@@ -4,39 +4,19 @@ import React from "react";
 import { Github, Twitter, Linkedin, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 
+
 export default function FintrackFooter() {
   const currentYear = new Date().getFullYear();
-
-  const container = {
-    hidden: { opacity: 0, y: 16 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, staggerChildren: 0.08 },
-    },
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 8 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.35 } },
-  };
 
   return (
     <footer
       role="contentinfo"
-      className="border-t border-white/5 bg-neutral-950"
+      className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950"
     >
       <div className="mx-auto max-w-7xl px-6 py-12">
-        <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="flex flex-col items-center gap-6 text-center"
-        >
+        <div className="flex flex-col items-center gap-6 text-center">
           {/* ---------------- Social links ---------------- */}
-          <motion.nav
-            variants={item}
+          <nav
             aria-label="Social links"
             className="flex gap-3"
           >
@@ -46,60 +26,58 @@ export default function FintrackFooter() {
               { icon: Linkedin, href: "#", label: "LinkedIn" },
               { icon: Mail, href: "#", label: "Email" },
             ].map((social, index) => (
-              <motion.a
+              <a
                 key={index}
                 href={social.href}
                 aria-label={social.label}
                 className="
                   flex h-10 w-10 items-center justify-center
-                  rounded-full
-                  border border-white/10
-                  bg-neutral-900
-                  text-white/70
-                  transition-colors
-                  hover:bg-neutral-800 hover:text-white
+                  rounded-lg
+                  border border-slate-200 dark:border-slate-800
+                  bg-slate-50 dark:bg-slate-900
+                  text-slate-600 dark:text-slate-400
+                  transition-transform duration-200
+                  hover:bg-slate-100 dark:hover:bg-slate-800
+                  hover:text-indigo-600 dark:hover:text-indigo-400
+                  hover:border-indigo-200 dark:hover:border-indigo-800
+                  hover:scale-110
                 "
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.96 }}
               >
                 <social.icon className="h-4 w-4" />
-              </motion.a>
+              </a>
             ))}
-          </motion.nav>
+          </nav>
 
           {/* ---------------- Legal / links ---------------- */}
-          <motion.div variants={item} className="space-x-3 text-sm">
-            <span className="text-white/50">
-              © {currentYear} Fintrack
+          <motion.div className="space-x-3 text-sm">
+            <span className="text-slate-500 dark:text-slate-400">
+              © {currentYear} FinTrack
             </span>
 
-            <span className="text-white/30">·</span>
+            <span className="text-slate-300 dark:text-slate-700">·</span>
 
             <a
               href="#"
-              className="text-white/60 hover:text-white transition-colors"
+              className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium"
             >
               Privacy Policy
             </a>
 
-            <span className="text-white/30">·</span>
+            <span className="text-slate-300 dark:text-slate-700">·</span>
 
             <a
               href="#"
-              className="text-white/60 hover:text-white transition-colors"
+              className="text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium"
             >
               Terms of Service
             </a>
           </motion.div>
 
           {/* ---------------- Tagline ---------------- */}
-          <motion.p
-            variants={item}
-            className="text-xs text-white/40"
-          >
+          <p className="text-xs text-slate-400 dark:text-slate-500">
             Built for calm, focused financial tracking
-          </motion.p>
-        </motion.div>
+          </p>
+        </div>
       </div>
     </footer>
   );

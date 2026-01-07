@@ -26,7 +26,7 @@ export default async function AddTransactionPage({
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-5">
+    <div className="max-w-3xl mx-auto mt-5 px-5">
 
       <AddTransactionForm
         accounts={accounts}

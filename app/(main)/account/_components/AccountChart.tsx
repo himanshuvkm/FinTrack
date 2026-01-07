@@ -89,16 +89,16 @@ export default function AccountChart({
       aria-labelledby="transaction-overview-title"
       className="w-full"
     >
-      <Card className="rounded-2xl border border-white/5 bg-neutral-900 shadow-none">
+      <Card className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between pb-6">
           <div>
             <CardTitle
               id="transaction-overview-title"
-              className="text-lg font-medium tracking-wide text-white/90"
+              className="text-xl font-bold tracking-wide text-slate-900 dark:text-white"
             >
               Transaction Overview
             </CardTitle>
-            <p className="mt-1 text-sm text-white/50">
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
               Income vs expenses for the selected period
             </p>
           </div>
@@ -111,20 +111,20 @@ export default function AccountChart({
               aria-label="Select date range"
               className="
                 w-[160px]
-                bg-neutral-900
-                border border-white/5
-                text-white/70
-                hover:bg-neutral-800
+                bg-slate-50 dark:bg-slate-800
+                border border-slate-200 dark:border-slate-700
+                text-slate-700 dark:text-slate-300
+                hover:bg-slate-100 dark:hover:bg-slate-700
               "
             >
               <SelectValue placeholder="Select range" />
             </SelectTrigger>
-            <SelectContent className="bg-neutral-900 border border-white/5">
+            <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
               {Object.entries(DATE_RANGES).map(([key, { label }]) => (
                 <SelectItem
                   key={key}
                   value={key}
-                  className="focus:bg-neutral-800"
+                  className="focus:bg-slate-100 dark:focus:bg-slate-800"
                 >
                   {label}
                 </SelectItem>
@@ -136,25 +136,25 @@ export default function AccountChart({
         <CardContent>
           {/* ---------------- Summary (SEO-visible) ---------------- */}
           <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border border-white/5 bg-neutral-950 p-4">
-              <p className="text-xs text-white/40">Total Income</p>
-              <p className="mt-1 text-xl font-semibold text-emerald-400">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Income</p>
+              <p className="mt-1 text-xl font-bold text-emerald-600 dark:text-emerald-400">
                 ${totals.income.toFixed(2)}
               </p>
             </div>
 
-            <div className="rounded-xl border border-white/5 bg-neutral-950 p-4">
-              <p className="text-xs text-white/40">Total Expenses</p>
-              <p className="mt-1 text-xl font-semibold text-rose-400">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Expenses</p>
+              <p className="mt-1 text-xl font-bold text-rose-600 dark:text-rose-400">
                 ${totals.expense.toFixed(2)}
               </p>
             </div>
 
-            <div className="rounded-xl border border-white/5 bg-neutral-950 p-4">
-              <p className="text-xs text-white/40">Net Balance</p>
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Net Balance</p>
               <p
-                className={`mt-1 text-xl font-semibold ${
-                  net >= 0 ? "text-emerald-400" : "text-rose-400"
+                className={`mt-1 text-xl font-bold ${
+                  net >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
                 }`}
               >
                 ${net.toFixed(2)}
@@ -169,50 +169,52 @@ export default function AccountChart({
             className="
               h-[320px]
               rounded-xl
-              bg-neutral-950
-              ring-1 ring-white/5
+              bg-slate-50 dark:bg-slate-950
+              ring-1 ring-slate-200 dark:ring-slate-800
               p-3
             "
           >
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={filteredData}>
                 <CartesianGrid
-                  stroke="rgba(255,255,255,0.05)"
+                  stroke="rgb(226 232 240)"
+                  strokeDasharray="3 3"
                   vertical={false}
                 />
                 <XAxis
                   dataKey="date"
-                  tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 12 }}
+                  tick={{ fill: "rgb(100 116 139)", fontSize: 12 }}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
                   tickFormatter={(v) => `$${v}`}
-                  tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 12 }}
+                  tick={{ fill: "rgb(100 116 139)", fontSize: 12 }}
                   tickLine={false}
                   axisLine={false}
                 />
                 <Tooltip
                   formatter={(v) => `$${v}`}
                   contentStyle={{
-                    backgroundColor: "#111",
-                    border: "1px solid rgba(255,255,255,0.08)",
+                    backgroundColor: "white",
+                    border: "1px solid rgb(226 232 240)",
                     borderRadius: "10px",
-                    color: "white",
+                    color: "rgb(15 23 42)",
                     fontSize: "12px",
+                    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                   }}
                 />
                 <Legend />
                 <Bar
                   dataKey="income"
                   name="Income"
-                  fill="#34d399"
+                  fill="#10b981"
                   radius={[6, 6, 0, 0]}
                 />
                 <Bar
                   dataKey="expense"
                   name="Expense"
-                  fill="#fb7185"
+                  fill="#f43f5e"
                   radius={[6, 6, 0, 0]}
                 />
               </BarChart>

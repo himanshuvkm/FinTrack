@@ -7,21 +7,20 @@ export default function Layout({
 }) {
   return (
     <>
-      <main className="min-h-screen bg-neutral-950">
-  <div className="container mx-auto px-5 py-16 text-white">
-    {children}
-  </div>
+      <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
+        <div className="container mx-auto px-5 py-16">
+          {children}
+        </div>
 
-  <Toaster
-    richColors
-    theme="dark"
-    toastOptions={{
-      className:
-        "bg-neutral-900 border border-white/10 text-white",
-    }}
-  />
-</main>
-
+        <Toaster
+          richColors
+          theme="light"
+          toastOptions={{
+            className:
+              "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white shadow-lg",
+          }}
+        />
+      </main>
     </>
   );
 }

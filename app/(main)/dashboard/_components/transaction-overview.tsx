@@ -83,171 +83,171 @@ export const DashboardOverview = memo(function DashboardOverview({
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
-  {/* ================= RECENT TRANSACTIONS ================= */}
-  <Card className="
-    rounded-2xl
-    border border-white/5
-    bg-neutral-900
-    shadow-none
-  ">
-    <CardHeader className="flex flex-row items-center justify-between pb-4">
-      <CardTitle className="text-sm font-medium tracking-wide text-white/85">
-        Recent Transactions
-      </CardTitle>
+      {/* ================= RECENT TRANSACTIONS ================= */}
+      <Card className="
+        rounded-xl
+        border border-slate-200 dark:border-slate-800
+        bg-white dark:bg-slate-900
+        shadow-sm hover:shadow-lg transition-shadow
+      ">
+        <CardHeader className="flex flex-row items-center justify-between pb-4">
+          <CardTitle className="text-lg font-semibold tracking-wide text-slate-900 dark:text-white">
+            Recent Transactions
+          </CardTitle>
 
-      <Select
-        value={selectedAccountId}
-        onValueChange={setSelectedAccountId}
-      >
-        <SelectTrigger
-          className="
-            h-8 w-[150px]
-            bg-neutral-900
-            border border-white/5
-            text-white/70
-            hover:bg-neutral-800
-          "
-        >
-          <SelectValue placeholder="Select account" />
-        </SelectTrigger>
-
-        <SelectContent className="
-          bg-neutral-900
-          border border-white/5
-          text-white/80
-        ">
-          {accounts.map((account) => (
-            <SelectItem
-              key={account.id}
-              value={account.id}
-              className="focus:bg-neutral-800"
-            >
-              {account.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </CardHeader>
-
-    <CardContent className="space-y-2">
-      {recentTransactions.length === 0 ? (
-        <p className="py-8 text-center text-sm text-white/40">
-          No recent transactions
-        </p>
-      ) : (
-        recentTransactions.map((transaction) => (
-          <div
-            key={transaction.id}
-            className="
-              flex items-center justify-between
-              rounded-lg px-3 py-2
-              transition-colors
-              hover:bg-neutral-800
-            "
+          <Select
+            value={selectedAccountId}
+            onValueChange={setSelectedAccountId}
           >
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium text-white/85">
-                {transaction.description || "Untitled Transaction"}
-              </p>
-              <p className="text-xs text-white/40">
-                {format(new Date(transaction.date), "PP")}
-              </p>
-            </div>
-
-            <div
-              className={cn(
-                "flex items-center gap-1 text-sm font-medium",
-                transaction.type === "EXPENSE"
-                  ? "text-rose-400"
-                  : "text-emerald-400"
-              )}
+            <SelectTrigger
+              className="
+                h-9 w-[150px]
+                bg-slate-50 dark:bg-slate-800
+                border border-slate-200 dark:border-slate-700
+                text-slate-700 dark:text-slate-300
+                hover:bg-slate-100 dark:hover:bg-slate-700
+              "
             >
-              {transaction.type === "EXPENSE" ? (
-                <ArrowDownRight className="h-4 w-4" />
-              ) : (
-                <ArrowUpRight className="h-4 w-4" />
-              )}
-              ${Number(transaction.amount).toFixed(2)}
-            </div>
-          </div>
-        ))
-      )}
-    </CardContent>
-  </Card>
+              <SelectValue placeholder="Select account" />
+            </SelectTrigger>
 
-  {/* ================= EXPENSE BREAKDOWN ================= */}
-  <Card className="
-    rounded-2xl
-    border border-white/5
-    bg-neutral-900
-    shadow-none
-  ">
-    <CardHeader>
-      <CardTitle className="text-sm font-medium tracking-wide text-white/85">
-        Monthly Expense Breakdown
-      </CardTitle>
-    </CardHeader>
+            <SelectContent className="
+              bg-white dark:bg-slate-900
+              border border-slate-200 dark:border-slate-800
+              text-slate-900 dark:text-white
+            ">
+              {accounts.map((account) => (
+                <SelectItem
+                  key={account.id}
+                  value={account.id}
+                  className="focus:bg-slate-100 dark:focus:bg-slate-800"
+                >
+                  {account.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </CardHeader>
 
-    <CardContent>
-      {pieChartData.length === 0 ? (
-        <p className="py-10 text-center text-sm text-white/40">
-          No expenses this month
-        </p>
-      ) : (
-        <div className="
-          h-[300px]
-          rounded-xl
-          bg-neutral-950
-          ring-1 ring-white/5
-          p-4
-        ">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={pieChartData}
-                cx="50%"
-                cy="50%"
-                innerRadius={55}
-                outerRadius={95}
-                dataKey="value"
-                paddingAngle={2}
+        <CardContent className="space-y-2">
+          {recentTransactions.length === 0 ? (
+            <p className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+              No recent transactions
+            </p>
+          ) : (
+            recentTransactions.map((transaction) => (
+              <div
+                key={transaction.id}
+                className="
+                  flex items-center justify-between
+                  rounded-lg px-3 py-2.5
+                  transition-colors
+                  hover:bg-slate-50 dark:hover:bg-slate-800/50
+                "
               >
-                {pieChartData.map((_, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">
+                    {transaction.description || "Untitled Transaction"}
+                  </p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {format(new Date(transaction.date), "PP")}
+                  </p>
+                </div>
+
+                <div
+                  className={cn(
+                    "flex items-center gap-1 text-sm font-semibold",
+                    transaction.type === "EXPENSE"
+                      ? "text-rose-600 dark:text-rose-400"
+                      : "text-emerald-600 dark:text-emerald-400"
+                  )}
+                >
+                  {transaction.type === "EXPENSE" ? (
+                    <ArrowDownRight className="h-4 w-4" />
+                  ) : (
+                    <ArrowUpRight className="h-4 w-4" />
+                  )}
+                  ${Number(transaction.amount).toFixed(2)}
+                </div>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ================= EXPENSE BREAKDOWN ================= */}
+      <Card className="
+        rounded-xl
+        border border-slate-200 dark:border-slate-800
+        bg-white dark:bg-slate-900
+        shadow-sm hover:shadow-lg transition-shadow
+      ">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold tracking-wide text-slate-900 dark:text-white">
+            Monthly Expense Breakdown
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent>
+          {pieChartData.length === 0 ? (
+            <p className="py-10 text-center text-sm text-slate-500 dark:text-slate-400">
+              No expenses this month
+            </p>
+          ) : (
+            <div className="
+              h-[300px]
+              rounded-xl
+              bg-slate-50 dark:bg-slate-950
+              ring-1 ring-slate-200 dark:ring-slate-800
+              p-4
+            ">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieChartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={55}
+                    outerRadius={95}
+                    dataKey="value"
+                    paddingAngle={2}
+                  >
+                    {pieChartData.map((_, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+
+                  <Tooltip
+                    formatter={(value) =>
+                      `$${Number(value ?? 0).toFixed(2)}`
+                    }
+                    contentStyle={{
+                      backgroundColor: "white",
+                      border: "1px solid rgb(226 232 240)",
+                      borderRadius: "10px",
+                      fontSize: "12px",
+                      color: "rgb(15 23 42)",
+                      boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                    }}
                   />
-                ))}
-              </Pie>
 
-              <Tooltip
-                formatter={(value) =>
-                  `$${Number(value ?? 0).toFixed(2)}`
-                }
-                contentStyle={{
-                  backgroundColor: "#111",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  borderRadius: "10px",
-                  fontSize: "12px",
-                  color: "rgba(255,255,255,0.85)",
-                }}
-              />
-
-              <Legend
-                verticalAlign="bottom"
-                iconType="circle"
-                wrapperStyle={{
-                  fontSize: "12px",
-                  color: "rgba(255,255,255,0.6)",
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-    </CardContent>
-  </Card>
-</div>
-
+                  <Legend
+                    verticalAlign="bottom"
+                    iconType="circle"
+                    wrapperStyle={{
+                      fontSize: "12px",
+                      color: "rgb(100 116 139)",
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 });
