@@ -1,20 +1,18 @@
-import React, { Suspense } from "react";
-import Dashboardpage from "./page";
-import { BarLoader } from "react-spinners";
+import { checkUser } from "@/lib/checkUser";
+import React from "react";
 
-function Dashboardlayout() {
+async function Dashboardlayout({ children }: { children: React.ReactNode }) {
+  await checkUser();
+
   return (
-    <div className="px-5">
-      <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-5">
-  Dashboard
-</h1>
+    <div className="min-h-screen bg-neutral-950 px-5 rounded-lg">
+ <h1 className=" text-4xl text-center font-bold font-[Poppins] pt-4 tracking-wide text-white/90">
+    Dashboard
+  </h1>
 
-      <Suspense
-        fallback={<BarLoader color="#00ACB6" width={"100%"} className="mt-4" />}
-      >
-        <Dashboardpage />
-      </Suspense>
-    </div>
+  {children}
+</div>
+
   );
 }
 

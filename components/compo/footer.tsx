@@ -1,121 +1,104 @@
-'use client'
+"use client";
 
-import React from 'react';
-import { Github, Twitter, Linkedin, Mail } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React from "react";
+import { Github, Twitter, Linkedin, Mail } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function FintrackFooter() {
   const currentYear = new Date().getFullYear();
 
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
+  const container = {
+    hidden: { opacity: 0, y: 16 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: {
-        duration: 0.6,
-        staggerChildren: 0.1
-      }
-    }
+      transition: { duration: 0.5, staggerChildren: 0.08 },
+    },
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.4 }
-    }
+  const item = {
+    hidden: { opacity: 0, y: 8 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.35 } },
   };
 
   return (
-    <footer className="relative overflow-hidden bg-gradient-to-br from-white to-green-100 py-12  border-gray-200">
-      {/* Animated Background Elements */}
-      <motion.div
-        className="absolute top-0 left-10 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"
-        animate={{
-          scale: [1, 1.2, 1],
-          x: [0, 30, 0],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      />
-      <motion.div
-        className="absolute bottom-0 right-10 w-64 h-64 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"
-        animate={{
-          scale: [1, 1.3, 1],
-          x: [0, -30, 0],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      />
-
-      <div className="relative max-w-7xl mx-auto px-6">
+    <footer
+      role="contentinfo"
+      className="border-t border-white/5 bg-neutral-950"
+    >
+      <div className="mx-auto max-w-7xl px-6 py-12">
         <motion.div
-          variants={containerVariants}
+          variants={container}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="flex flex-col items-center gap-6"
+          className="flex flex-col items-center gap-6 text-center"
         >
-          {/* Social Icons */}
-          <motion.div variants={itemVariants} className="flex gap-4">
+          {/* ---------------- Social links ---------------- */}
+          <motion.nav
+            variants={item}
+            aria-label="Social links"
+            className="flex gap-3"
+          >
             {[
-              { icon: Github, href: '#', label: 'GitHub' },
-              { icon: Twitter, href: '#', label: 'Twitter' },
-              { icon: Linkedin, href: '#', label: 'LinkedIn' },
-              { icon: Mail, href: '#', label: 'Email' }
+              { icon: Github, href: "#", label: "GitHub" },
+              { icon: Twitter, href: "#", label: "Twitter" },
+              { icon: Linkedin, href: "#", label: "LinkedIn" },
+              { icon: Mail, href: "#", label: "Email" },
             ].map((social, index) => (
               <motion.a
                 key={index}
                 href={social.href}
                 aria-label={social.label}
-                className="bg-gradient-to-r from-blue-600 to-green-500 p-3 rounded-full text-white hover:shadow-lg transition-all"
-                whileHover={{ scale: 1.1, y: -2 }}
-                whileTap={{ scale: 0.95 }}
+                className="
+                  flex h-10 w-10 items-center justify-center
+                  rounded-full
+                  border border-white/10
+                  bg-neutral-900
+                  text-white/70
+                  transition-colors
+                  hover:bg-neutral-800 hover:text-white
+                "
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.96 }}
               >
-                <social.icon className="h-5 w-5" />
+                <social.icon className="h-4 w-4" />
               </motion.a>
             ))}
+          </motion.nav>
+
+          {/* ---------------- Legal / links ---------------- */}
+          <motion.div variants={item} className="space-x-3 text-sm">
+            <span className="text-white/50">
+              © {currentYear} Fintrack
+            </span>
+
+            <span className="text-white/30">·</span>
+
+            <a
+              href="#"
+              className="text-white/60 hover:text-white transition-colors"
+            >
+              Privacy Policy
+            </a>
+
+            <span className="text-white/30">·</span>
+
+            <a
+              href="#"
+              className="text-white/60 hover:text-white transition-colors"
+            >
+              Terms of Service
+            </a>
           </motion.div>
 
-          {/* Copyright and Links */}
-          <motion.div variants={itemVariants} className="text-center">
-            <p className="text-gray-600 text-sm">
-              © {currentYear} Fintrack. All rights reserved. |{' '}
-              <motion.a
-                href="#"
-                className="text-blue-600 hover:text-green-500 transition-colors font-medium"
-                whileHover={{ scale: 1.05 }}
-                style={{ display: 'inline-block' }}
-              >
-                Privacy Policy
-              </motion.a>
-              {' '}|{' '}
-              <motion.a
-                href="#"
-                className="text-blue-600 hover:text-green-500 transition-colors font-medium"
-                whileHover={{ scale: 1.05 }}
-                style={{ display: 'inline-block' }}
-              >
-                Terms of Service
-              </motion.a>
-            </p>
-          </motion.div>
-
-          {/* Made with love text */}
-          <motion.div
-            variants={itemVariants}
-            className="text-xs text-gray-500"
+          {/* ---------------- Tagline ---------------- */}
+          <motion.p
+            variants={item}
+            className="text-xs text-white/40"
           >
-            Made with <span className="text-red-500">♥</span> for smarter financial management
-          </motion.div>
+            Built for calm, focused financial tracking
+          </motion.p>
         </motion.div>
       </div>
     </footer>

@@ -3,7 +3,6 @@
 import {
   BarChart,
   Bar,
-  Rectangle,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -12,7 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Transaction } from "./transaction-table";
-import { use, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { format, endOfDay, startOfDay, subDays } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -44,6 +43,8 @@ export default function AccountChart({
 }) {
   const [dateRange, setDateRange] = useState<RangeKey>("1M");
 
+  /* ---------------- Data processing ---------------- */
+
   const filteredData = useMemo(() => {
     const range = DATE_RANGES[dateRange];
     const now = new Date();
@@ -52,60 +53,78 @@ export default function AccountChart({
       : startOfDay(new Date(0));
 
     const filtered = transactions.filter(
-      (t) => new Date(t.date) >= startDate && new Date(t.date) <= endOfDay(now)
+      (t) =>
+        new Date(t.date) >= startDate &&
+        new Date(t.date) <= endOfDay(now)
     );
 
-    const grouped = filtered.reduce((acc: any, transaction: Transaction) => {
-      const date = format(new Date(transaction.date), "MMM dd");
-      if (!acc[date]) {
-        acc[date] = { date, income: 0, expense: 0 };
-      }
-      if (transaction.type === "INCOME") {
-        acc[date].income += Number(transaction.amount);
-      } else {
-        acc[date].expense += Number(transaction.amount);
-      }
+    const grouped = filtered.reduce((acc: any, t) => {
+      const date = format(new Date(t.date), "MMM dd");
+      if (!acc[date]) acc[date] = { date, income: 0, expense: 0 };
+      t.type === "INCOME"
+        ? (acc[date].income += Number(t.amount))
+        : (acc[date].expense += Number(t.amount));
       return acc;
     }, {});
 
-    // Convert to array and sort by date
-    return Object.values(grouped).sort(
-      (a: any, b: any) =>
-        new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
+    return Object.values(grouped);
   }, [transactions, dateRange]);
 
   const totals = useMemo<Totals>(() => {
     return filteredData.reduce(
-      (acc: Totals, day: any) => ({
-        income: acc.income + day.income,
-        expense: acc.expense + day.expense,
+      (acc: Totals, d: any) => ({
+        income: acc.income + d.income,
+        expense: acc.expense + d.expense,
       }),
       { income: 0, expense: 0 }
     );
   }, [filteredData]);
 
+  const net = totals.income - totals.expense;
+
+  /* ---------------- UI ---------------- */
+
   return (
-    <div>
-      <Card className="bg-white/60 backdrop-blur-xl border border-gray-200 shadow-sm hover:shadow-md transition-all rounded-2xl">
+    <section
+      aria-labelledby="transaction-overview-title"
+      className="w-full"
+    >
+      <Card className="rounded-2xl border border-white/5 bg-neutral-900 shadow-none">
         <CardHeader className="flex flex-row items-center justify-between pb-6">
-          <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            Transaction Overview
-          </CardTitle>
+          <div>
+            <CardTitle
+              id="transaction-overview-title"
+              className="text-lg font-medium tracking-wide text-white/90"
+            >
+              Transaction Overview
+            </CardTitle>
+            <p className="mt-1 text-sm text-white/50">
+              Income vs expenses for the selected period
+            </p>
+          </div>
 
           <Select
-            defaultValue={dateRange}
+            value={dateRange}
             onValueChange={(val) => setDateRange(val as RangeKey)}
           >
-            <SelectTrigger className="w-[150px] bg-white/60 backdrop-blur border-gray-300 rounded-lg">
+            <SelectTrigger
+              aria-label="Select date range"
+              className="
+                w-[160px]
+                bg-neutral-900
+                border border-white/5
+                text-white/70
+                hover:bg-neutral-800
+              "
+            >
               <SelectValue placeholder="Select range" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-neutral-900 border border-white/5">
               {Object.entries(DATE_RANGES).map(([key, { label }]) => (
                 <SelectItem
                   key={key}
                   value={key}
-                  className="cursor-pointer hover:bg-gray-100 transition"
+                  className="focus:bg-neutral-800"
                 >
                   {label}
                 </SelectItem>
@@ -115,85 +134,85 @@ export default function AccountChart({
         </CardHeader>
 
         <CardContent>
-          {/* Stats Row */}
-          <div className="grid grid-cols-3 gap-4 mb-6 text-center">
-            <div className="p-4 rounded-xl bg-green-50 border border-green-100">
-              <p className="text-sm text-gray-500">Total Income</p>
-              <p className="text-xl font-bold text-green-600">
+          {/* ---------------- Summary (SEO-visible) ---------------- */}
+          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="rounded-xl border border-white/5 bg-neutral-950 p-4">
+              <p className="text-xs text-white/40">Total Income</p>
+              <p className="mt-1 text-xl font-semibold text-emerald-400">
                 ${totals.income.toFixed(2)}
               </p>
             </div>
 
-            <div className="p-4 rounded-xl bg-red-50 border border-red-100">
-              <p className="text-sm text-gray-500">Total Expenses</p>
-              <p className="text-xl font-bold text-red-600">
+            <div className="rounded-xl border border-white/5 bg-neutral-950 p-4">
+              <p className="text-xs text-white/40">Total Expenses</p>
+              <p className="mt-1 text-xl font-semibold text-rose-400">
                 ${totals.expense.toFixed(2)}
               </p>
             </div>
 
-            <div
-              className={`p-4 rounded-xl border ${
-                totals.income - totals.expense >= 0
-                  ? "bg-green-50 border-green-100"
-                  : "bg-red-50 border-red-100"
-              }`}
-            >
-              <p className="text-sm text-gray-500">Net</p>
+            <div className="rounded-xl border border-white/5 bg-neutral-950 p-4">
+              <p className="text-xs text-white/40">Net Balance</p>
               <p
-                className={`text-xl font-bold ${
-                  totals.income - totals.expense >= 0
-                    ? "text-green-600"
-                    : "text-red-600"
+                className={`mt-1 text-xl font-semibold ${
+                  net >= 0 ? "text-emerald-400" : "text-rose-400"
                 }`}
               >
-                ${(totals.income - totals.expense).toFixed(2)}
+                ${net.toFixed(2)}
               </p>
             </div>
           </div>
 
-          {/* Chart */}
-          <div className="h-[300px] bg-white/70 rounded-xl shadow-inner border border-gray-200 p-3">
+          {/* ---------------- Chart ---------------- */}
+          <div
+            role="img"
+            aria-label="Bar chart comparing income and expenses by day"
+            className="
+              h-[320px]
+              rounded-xl
+              bg-neutral-950
+              ring-1 ring-white/5
+              p-3
+            "
+          >
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={filteredData}
-                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-              >
+              <BarChart data={filteredData}>
                 <CartesianGrid
-                  strokeDasharray="3 3"
+                  stroke="rgba(255,255,255,0.05)"
                   vertical={false}
-                  opacity={0.3}
                 />
                 <XAxis
                   dataKey="date"
-                  fontSize={12}
+                  tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 12 }}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
-                  fontSize={12}
+                  tickFormatter={(v) => `$${v}`}
+                  tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 12 }}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(value) => `$${value}`}
                 />
                 <Tooltip
-                  formatter={(value) => [`$${value}`, undefined]}
+                  formatter={(v) => `$${v}`}
                   contentStyle={{
-                    backgroundColor: "hsl(var(--popover))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "var(--radius)",
+                    backgroundColor: "#111",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: "10px",
+                    color: "white",
+                    fontSize: "12px",
                   }}
                 />
                 <Legend />
                 <Bar
                   dataKey="income"
                   name="Income"
-                  fill="#22c55e"
+                  fill="#34d399"
                   radius={[6, 6, 0, 0]}
                 />
                 <Bar
                   dataKey="expense"
                   name="Expense"
-                  fill="#ef4444"
+                  fill="#fb7185"
                   radius={[6, 6, 0, 0]}
                 />
               </BarChart>
@@ -201,6 +220,6 @@ export default function AccountChart({
           </div>
         </CardContent>
       </Card>
-    </div>
+    </section>
   );
 }

@@ -1,10 +1,17 @@
 import { getAccountWithTransaction } from "@/actions/account";
 import { notFound } from "next/navigation";
 import React, { Suspense } from "react";
-
 import { BarLoader } from "react-spinners";
+
 import TransactionTable from "../_components/transaction-table";
 import AccountChart from "../_components/AccountChart";
+
+/* ---------------- SEO ---------------- */
+export const metadata = {
+  title: "Account Overview – Dashboard",
+  description:
+    "View account balance, transaction history, and income vs expense analytics.",
+};
 
 export default async function Page({
   params,
@@ -17,51 +24,88 @@ export default async function Page({
   if (!accountData) return notFound();
 
   const { transactions, ...account } = accountData;
+
   return (
-    <div className="space-y-8 px-5">
-      <div className="flex flex-col sm:flex-row gap-6 sm:items-end justify-between bg-gradient-to-r from-blue-50 via-purple-50 to-green-50 rounded-2xl p-6 border border-gray-200">
-        {/* Account Info */}
-        <div className="flex-1">
-          <h1 className="text-4xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 via-purple-600 to-green-500 bg-clip-text text-transparent capitalize mb-2">
-            {account.name}
-          </h1>
-          <p className="text-gray-600 text-lg">
-            {account.type.charAt(0) + account.type.slice(1).toLowerCase()}{" "}
-            Account
-          </p>
-        </div>
+    <section
+      aria-labelledby="account-title"
+      className="space-y-10 px-5"
+    >
+      {/* ================= Account Header ================= */}
+      <header
+        className="
+          rounded-2xl
+          border border-white/5
+          bg-neutral-900
+          p-6
+        "
+      >
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          {/* Account Info */}
+          <div>
+            <h1
+              id="account-title"
+              className="text-2xl font-medium tracking-tight text-white/90 capitalize"
+            >
+              {account.name}
+            </h1>
 
-        {/* Balance & Stats */}
-        <div className="text-left sm:text-right">
-          <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-green-500 bg-clip-text text-transparent mb-1">
-            ${parseFloat(account.balance).toFixed(2)}
+            <p className="mt-1 text-sm text-white/50">
+              {account.type.charAt(0) +
+                account.type.slice(1).toLowerCase()}{" "}
+              account
+            </p>
           </div>
-          <p className="text-sm text-gray-600 font-medium">
-            {account._count.transactions} Transaction
-            {account._count.transactions !== 1 ? "s" : ""}
-          </p>
+
+          {/* Balance */}
+          <div className="sm:text-right">
+            <p className="text-3xl font-semibold tracking-tight text-white">
+              ${parseFloat(account.balance).toFixed(2)}
+            </p>
+            <p className="mt-1 text-sm text-white/40">
+              {account._count.transactions} transaction
+              {account._count.transactions !== 1 ? "s" : ""}
+            </p>
+          </div>
         </div>
-      </div>
+      </header>
 
+      {/* ================= Chart ================= */}
+      <section aria-labelledby="account-chart-title">
+        <h2 id="account-chart-title" className="sr-only">
+          Account analytics
+        </h2>
 
+        <Suspense
+          fallback={
+            <BarLoader
+              width="100%"
+              color="#a855f7"
+              className="mt-4"
+            />
+          }
+        >
+          <AccountChart transactions={transactions} />
+        </Suspense>
+      </section>
 
-      {/* chart area */}
+      {/* ================= Transactions ================= */}
+      <section aria-labelledby="transactions-title">
+        <h2 id="transactions-title" className="sr-only">
+          Transaction history
+        </h2>
 
-       <Suspense
-        fallback={<BarLoader color="#00ACB6" width={"100%"} className="mt-4" />}
-      >
-        <AccountChart transactions={transactions} />
-      </Suspense>
-
-
-
-      {/* Transactions details  */}
-
-      <Suspense
-        fallback={<BarLoader color="#00ACB6" width={"100%"} className="mt-4" />}
-      >
-        <TransactionTable transactions={transactions} />
-      </Suspense>
-    </div>
+        <Suspense
+          fallback={
+            <BarLoader
+              width="100%"
+              color="#a855f7"
+              className="mt-4"
+            />
+          }
+        >
+          <TransactionTable transactions={transactions} />
+        </Suspense>
+      </section>
+    </section>
   );
 }

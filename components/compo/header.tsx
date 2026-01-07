@@ -1,103 +1,128 @@
 import React from "react";
 import {
   SignInButton,
-  SignUpButton,
   SignedIn,
   SignedOut,
   UserButton,
-} from '@clerk/nextjs'
-import { Wallet, LayoutDashboard, PenBox } from 'lucide-react';
+} from "@clerk/nextjs";
+import { Wallet, LayoutDashboard, PenBox } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
-import { checkUser } from "@/lib/checkUser";
 
-export default async function Header() {
-  await checkUser();
+export default function Header() {
   return (
-    <header className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50">
-      <nav className="container mx-auto px-4 py-4 flex items-center justify-between">
-        
-        {/* Logo */}
-        <Link href="/">
-          <div className="flex items-center space-x-2">
-            <div className="bg-gradient-to-r from-blue-600 to-green-500 p-2 rounded-lg">
-              <Wallet className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent">
-              Fintrack
-            </span>
+    <header
+      role="banner"
+      className="
+        fixed top-0 z-50 w-full
+        border-b border-white/5
+        bg-neutral-950/80
+        backdrop-blur
+      "
+    >
+      <nav
+        aria-label="Primary"
+        className="container mx-auto flex h-16 items-center justify-between px-4"
+      >
+        {/* ================= Logo ================= */}
+        <Link href="/" className="flex items-center gap-2">
+          <div
+            className="
+              flex h-9 w-9 items-center justify-center
+              rounded-lg
+              border border-white/10
+              bg-neutral-900
+              text-white
+            "
+          >
+            <Wallet className="h-5 w-5" />
           </div>
+          <span className="text-sm font-semibold tracking-wide text-white">
+            Fintrack
+          </span>
         </Link>
 
-        {/* Navigation Links (Signed Out Only) */}
-        <div className="hidden md:flex items-center space-x-8">
-          <SignedOut>
-            <a href="#features" className="text-gray-600 hover:text-blue-600 transition">
+        {/* ================= Navigation (signed out) ================= */}
+        <SignedOut>
+          <div className="hidden md:flex items-center gap-8 text-sm">
+            <Link
+              href="#features"
+              className="text-white/60 hover:text-white transition-colors"
+            >
               Features
-            </a>
-            <a href="#testimonials" className="text-gray-600 hover:text-blue-600 transition">
+            </Link>
+            <Link
+              href="#testimonials"
+              className="text-white/60 hover:text-white transition-colors"
+            >
               Testimonials
-            </a>
-          </SignedOut>
-        </div>
+            </Link>
+          </div>
+        </SignedOut>
 
-        {/* Action Buttons */}
-        <div className="flex items-center space-x-4">
-
-          {/* Signed In Buttons */}
+        {/* ================= Actions ================= */}
+        <div className="flex items-center gap-3">
           <SignedIn>
-
             <Link href="/dashboard">
               <Button
                 variant="outline"
-                className="border-gray-300 hover:border-blue-500 hover:bg-blue-50/60 
-                text-gray-700 font-medium rounded-xl transition-all flex items-center gap-2"
+                className="
+                  h-9 gap-2
+                  border-white/10
+                  bg-neutral-900
+                  text-white/80
+                  hover:bg-neutral-800 hover:text-white
+                "
               >
-                <LayoutDashboard size={18} />
+                <LayoutDashboard className="h-4 w-4" />
                 <span className="hidden md:inline">Dashboard</span>
               </Button>
             </Link>
 
             <Link href="/transactions/create">
               <Button
-                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-green-500 
-                text-white rounded-xl hover:from-blue-700 hover:to-green-600 
-                shadow-md hover:shadow-lg transition-all font-medium"
+                className="
+                  h-9 gap-2
+                  bg-white
+                  text-black
+                  hover:bg-white/90
+                "
               >
-                <PenBox size={18} />
-                <span className="hidden md:inline">Add Transaction</span>
+                <PenBox className="h-4 w-4" />
+                <span className="hidden md:inline">Add</span>
               </Button>
             </Link>
-
           </SignedIn>
 
-          {/* Signed Out Buttons */}
           <SignedOut>
             <SignInButton forceRedirectUrl="/dashboard">
               <Button
                 variant="outline"
-                className="border-gray-300 hover:border-blue-500 hover:bg-blue-50/60 
-                text-gray-700 font-medium rounded-xl transition-all"
+                className="
+                  h-9
+                  border-white/10
+                  bg-neutral-900
+                  text-white/80
+                  hover:bg-neutral-800 hover:text-white
+                "
               >
                 Login
               </Button>
             </SignInButton>
           </SignedOut>
 
-          {/* User Avatar */}
           <SignedIn>
             <UserButton
               appearance={{
                 elements: {
                   avatarBox:
-                    "w-10 h-10 ring-1 ring-gray-200 hover:ring-blue-500 transition-all rounded-full",
+                    "h-9 w-9 rounded-full ring-1 ring-white/10",
                 },
               }}
             />
           </SignedIn>
-
         </div>
       </nav>
     </header>
   );
-};
+}

@@ -13,76 +13,106 @@ import { getAccountWithTransaction } from "@/actions/account";
 
 export default async function Dashboardpage() {
 
-const [data, transactions] = await Promise.all([
-    GetUserAccounts(),
-    getDashboardData(),
-  ]);
+const accountsPromise = GetUserAccounts();
+const dashboardPromise = getDashboardData();
 
-const accounts: Account[] = data && data.success && Array.isArray(data.data) ? (data.data as Account[]) : [];
+const data = await accountsPromise;
+const accounts: Account[] =
+  data?.success && Array.isArray(data.data) ? data.data : [];
 
-const defaultAccount = accounts.find((account: Account) => account.isDefault);
- let budgetData = null;
- if(defaultAccount){
-  budgetData = await getBudgetData(defaultAccount.id);
- }
+const defaultAccount = accounts.find(a => a.isDefault);
+
+const budgetPromise = defaultAccount
+  ? getBudgetData(defaultAccount.id)
+  : Promise.resolve(null);
+
+const [transactions, budgetData] = await Promise.all([
+  dashboardPromise,
+  budgetPromise,
+]);
+
  
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 p-6">
-  <div className="max-w-7xl mx-auto space-y-8">
-    
+  <div className="min-h-screen bg-neutral-950 px-6 py-8 rounded-sm">
+  <div className="mx-auto max-w-7xl space-y-10 ">
 
-    {/* Budget Progress Section */}
-    <div className="space-y-4">
-     {
-      defaultAccount && (
+    {/* ================= Budget ================= */}
+    {defaultAccount && (
+      <div className="space-y-4">
         <BudgetProgress
-        initialBudget={budgetData?.budget}
-        currentExpenses={budgetData?.currentExpenses||0}
+          initialBudget={budgetData?.budget}
+          currentExpenses={budgetData?.currentExpenses || 0}
         />
-      )
-     }
-    </div>
+      </div>
+    )}
 
-    {/* Overview Section */}
+    {/* ================= Overview ================= */}
     <div className="space-y-4">
-     <Suspense>
-      <DashboardOverview
-        accounts={accounts}
-        transactions={transactions}
-      />
-     </Suspense>
+      <Suspense>
+        <DashboardOverview
+          accounts={accounts}
+          transactions={transactions}
+        />
+      </Suspense>
     </div>
 
-    {/* Account Grid */}
-    <div>
-      <h2 className="text-2xl font-semibold mb-6 text-gray-900">Your Accounts</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Create New Account Card */}
+    {/* ================= Accounts ================= */}
+    <div className="space-y-6">
+      <h2 className="text-lg font-medium tracking-wide text-white/85">
+        Your Accounts
+      </h2>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+
+        {/* Create Account */}
         <CreateAccountDrawer>
-          <Card className="border-2 border-dashed border-gray-300 hover:border-blue-500 transition-all cursor-pointer group hover:shadow-lg bg-white/50 backdrop-blur-sm">
-            <CardContent className="flex flex-col items-center justify-center p-8 min-h-[200px]">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-green-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Plus className="h-8 w-8 text-blue-600" />
+          <Card
+            className="
+              group cursor-pointer
+              rounded-2xl
+              border border-dashed border-white/10
+              bg-neutral-900
+              transition-colors
+              hover:border-white/20
+              hover:bg-neutral-800
+            "
+          >
+            <CardContent className="flex min-h-[200px] flex-col items-center justify-center gap-3 p-8 text-center">
+              <div
+                className="
+                  flex h-14 w-14 items-center justify-center
+                  rounded-full
+                  border border-white/10
+                  text-white/60
+                  transition-colors
+                  group-hover:text-white
+                "
+              >
+                <Plus className="h-6 w-6" />
               </div>
-              <p className="text-lg font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">
+
+              <p className="text-sm font-medium text-white/85">
                 Create New Account
               </p>
-              <p className="text-sm text-gray-500 mt-2">
+
+              <p className="text-xs text-white/40">
                 Add a new account to track
               </p>
             </CardContent>
           </Card>
         </CreateAccountDrawer>
 
-        {/* Account Cards */}
-        {Array.isArray(accounts) && accounts?.map((account: Account) => {
-          return <AccountCard key={account.id} account={account} />
-        })}
+        {/* Existing Accounts */}
+        {Array.isArray(accounts) &&
+          accounts.map((account: Account) => (
+            <AccountCard key={account.id} account={account} />
+          ))}
       </div>
     </div>
+
   </div>
 </div>
+
   );
 }

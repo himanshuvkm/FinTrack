@@ -1,13 +1,20 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { CalendarIcon, Check, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+
 import useFetch from "@/hooks/usefetch";
 import { transactionSchema } from "@/lib/schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { createTransaction, FormDataTransaction, updateTransaction } from "@/actions/transaction";
-import { toast } from "sonner";
+import {
+  createTransaction,
+  updateTransaction,
+  FormDataTransaction,
+} from "@/actions/transaction";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,24 +26,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, Check, Loader2 } from "lucide-react";
 import CreateAccountDrawer from "@/components/ui/create-account-drawer";
 import { cn } from "@/lib/utils";
-
-import { format, set } from "date-fns";
 import { ReceiptScanner } from "./recieptscanner";
-import { useEffect } from "react";
 
-// ------------------------
-// TYPES
-// ------------------------
+/* ------------------------------------------------------------------ */
+/* TYPES */
+/* ------------------------------------------------------------------ */
+
 type Account = {
   id: string;
   name: string;
@@ -57,9 +60,10 @@ interface Props {
   initialData?: any;
 }
 
-// ------------------------
-// COMPONENT
-// ------------------------
+/* ------------------------------------------------------------------ */
+/* COMPONENT */
+/* ------------------------------------------------------------------ */
+
 export default function AddTransactionForm({
   accounts = [],
   category = [],
@@ -68,31 +72,26 @@ export default function AddTransactionForm({
 }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const editId = searchParams.get("edit")
+  const editId = searchParams.get("edit");
 
-  // ------------------------
-  // REACT HOOK FORM
-  // ------------------------
   const {
     register,
     handleSubmit,
-    formState: { errors },
     watch,
     setValue,
-    getValues,
-    reset,
+    formState: { errors },
   } = useForm<FormDataTransaction>({
     resolver: zodResolver(transactionSchema),
     defaultValues:
       editMode && initialData
         ? {
-            type: initialData.type ?? "EXPENSE",
-            amount: String(initialData.amount ?? ""),
+            type: initialData.type,
+            amount: String(initialData.amount),
             description: initialData.description ?? "",
-            accountId: initialData.accountId ?? "",
-            category: initialData.category ?? "",
-            date: initialData.date ? new Date(initialData.date) : new Date(),
-            isRecurring: initialData.isRecurring ?? false,
+            accountId: initialData.accountId,
+            category: initialData.category,
+            date: new Date(initialData.date),
+            isRecurring: initialData.isRecurring,
             recurringInterval: initialData.recurringInterval ?? undefined,
           }
         : {
@@ -100,326 +99,319 @@ export default function AddTransactionForm({
             amount: "",
             description: "",
             accountId:
-              accounts.find((ac) => ac.isDefault)?.id ?? accounts[0]?.id ?? "",
+              accounts.find((a) => a.isDefault)?.id ?? accounts[0]?.id ?? "",
             category: "",
             date: new Date(),
             isRecurring: false,
           },
   });
 
+  const {
+    fn: transactionFn,
+    loading: transactionLoading,
+    data: transactionResult,
+  } = useFetch(editMode ? updateTransaction : createTransaction);
 
-  const { loading: transactionLoading, fn: transactionFn ,data: transactionResult} =
-    useFetch(editMode ? updateTransaction : createTransaction);
+  const handledRef = useRef(false);
 
   const type = watch("type");
   const isRecurring = watch("isRecurring");
   const date = watch("date");
+  const accountId = watch("accountId");
 
   const filteredCategories = category.filter((c) => c.type === type);
 
-
+  /* ------------------------------------------------------------------ */
+  /* SUBMIT */
+  /* ------------------------------------------------------------------ */
 
   const onSubmit = (data: FormDataTransaction) => {
-    const formData = {
+    const payload = {
       ...data,
       amount: data.amount.toString(),
     };
 
     if (editMode) {
-      transactionFn(editId, formData);
+      transactionFn(editId, payload);
     } else {
-      transactionFn(formData);
+      transactionFn(payload);
     }
   };
 
-  const handleScanComplete = (scannedData: any) => {
-    console.log(scannedData);
+  /* ------------------------------------------------------------------ */
+  /* RECEIPT SCAN */
+  /* ------------------------------------------------------------------ */
 
-    if (scannedData) {
-      setValue("amount", scannedData.amount.toString());
-      setValue("date", new Date(scannedData.date));
-      if (scannedData.description) {
-        setValue("description", scannedData.description);
-      }
-      if (scannedData.category) {
-        setValue("category", scannedData.category);
-      }
-      toast.success("Receipt scanned successfully");
-    }
+  const handleScanComplete = (scanned: any) => {
+    if (!scanned) return;
+
+    if (scanned.amount) setValue("amount", scanned.amount.toString());
+    if (scanned.date) setValue("date", new Date(scanned.date));
+    if (scanned.description) setValue("description", scanned.description);
+    if (scanned.category) setValue("category", scanned.category);
+
+    toast.success("Receipt scanned successfully");
   };
 
-const handledRef = useRef(false);
+  /* ------------------------------------------------------------------ */
+  /* SUCCESS HANDLING */
+  /* ------------------------------------------------------------------ */
 
-useEffect(() => {
-  if (handledRef.current) return;
+  useEffect(() => {
+    if (handledRef.current) return;
 
-  if (transactionResult && !transactionLoading) {
-    handledRef.current = true; 
+    if (transactionResult && !transactionLoading) {
+      handledRef.current = true;
 
-    toast.success(editMode ? "Transaction updated successfully" : "Transaction created successfully");
+      toast.success(
+        editMode
+          ? "Transaction updated successfully"
+          : "Transaction created successfully"
+      );
 
-    
-    const accountId = (transactionResult as any)?.data?.accountId;
-    if (accountId) {
-      router.push(`/account/${accountId}`);
+      const nextAccountId =
+        (transactionResult as any)?.data?.accountId ?? accountId;
+
+      if (nextAccountId) {
+        router.push(`/account/${nextAccountId}`);
+      }
     }
-  }
-}, [transactionResult, transactionLoading, editMode, router]);
+  }, [
+    transactionResult,
+    transactionLoading,
+    editMode,
+    router,
+    accountId,
+  ]);
 
+  /* ------------------------------------------------------------------ */
+  /* UI */
+  /* ------------------------------------------------------------------ */
 
-  // ------------------------
-  // UI
-  // ------------------------
   return (
-    <div className="w-full">
-      <form
-        className="space-y-10 rounded-xl border bg-white shadow-sm"
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        {/* HEADER */}
-        <div className="rounded-t-xl bg-gradient-to-r from-blue-50 to-emerald-50 px-6 py-8">
-          <h2 className="text-xl font-bold text-center">
-           { editMode ? "Edit Transaction" : "Create New Transaction" }
-          </h2>
-          <p className="text-sm text-muted-foreground text-center">
-            Add a new income or expense to your account
-          </p>
-        </div>
- 
-        {!editMode && <ReceiptScanner onScanComplete={handleScanComplete} />}
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="
+        rounded-xl
+        border border-white/10
+        bg-neutral-900
+        text-white
+        shadow-xl
+      "
+    >
+      {/* Header */}
+      <div className="border-b border-white/10 px-6 py-6 text-center">
+        <h2 className="text-lg font-semibold">
+          {editMode ? "Edit transaction" : "New transaction"}
+        </h2>
+        <p className="mt-1 text-sm text-white/50">
+          Record income or expenses
+        </p>
+      </div>
 
-        <div className="px-6 space-y-8">
-          {/* TYPE */}
-          <div className="space-y-3">
-            <label className="text-sm font-medium">Transaction Type</label>
+      {!editMode && (
+        <ReceiptScanner onScanComplete={handleScanComplete} />
+      )}
 
+      <div className="space-y-8 px-6 py-8">
+        {/* Type */}
+        <Field label="Transaction type" error={errors.type?.message}>
+          <Select
+            value={type}
+            onValueChange={(v) =>
+              setValue("type", v as "INCOME" | "EXPENSE")
+            }
+          >
+            <SelectTrigger className="h-12 bg-neutral-800 border-white/10">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="EXPENSE">Expense</SelectItem>
+              <SelectItem value="INCOME">Income</SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
+
+        {/* Amount + Account */}
+        <div className="grid gap-6 md:grid-cols-2">
+          <Field label="Amount" error={errors.amount?.message}>
+            <Input
+              type="number"
+              step="0.01"
+              className="h-12 bg-neutral-800 border-white/10"
+              {...register("amount")}
+            />
+          </Field>
+
+          <Field label="Account" error={errors.accountId?.message}>
             <Select
-              onValueChange={(value) =>
-                setValue("type", value as "INCOME" | "EXPENSE")
-              }
-              value={type}
+              value={accountId}
+              onValueChange={(v) => setValue("accountId", v)}
             >
-              <SelectTrigger className="h-12">
-                <SelectValue placeholder="Select type" />
+              <SelectTrigger className="h-12 bg-neutral-800 border-white/10">
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="EXPENSE">Expense</SelectItem>
-                <SelectItem value="INCOME">Income</SelectItem>
-              </SelectContent>  
-            </Select>
-
-            {errors.type && (
-              <p className="text-xs text-red-500">{errors.type.message}</p>
-            )}
-          </div>
-
-          
-          <div className="grid gap-8 md:grid-cols-2">
-            {/* Amount */}
-            <div className="space-y-3">
-              <label className="text-sm font-medium">Amount</label>
-
-              <Input
-                type="number"
-                step="0.01"
-                placeholder="0.00"
-                className="h-12"
-                {...register("amount")}
-              />
-
-              {errors.amount && (
-                <p className="text-xs text-red-500">{errors.amount.message}</p>
-              )}
-            </div>
-
-            {/* Account */}
-            <div className="space-y-3">
-              <label className="text-sm font-medium">Account</label>
-
-              <Select
-                onValueChange={(value) => setValue("accountId", value)}
-                value={watch("accountId")}
-              >
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Select account" />
-                </SelectTrigger>
-
-                <SelectContent>
-                  {accounts.map((account) => (
-                    <SelectItem key={account.id} value={account.id}>
-                      {account.name} • {Number(account.balance).toFixed(2)}
-                    </SelectItem>
-                  ))}
-
-                  <CreateAccountDrawer>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className="relative flex w-full cursor-pointer rounded-md py-2 text-sm hover:bg-accent"
-                    >
-                      + Create Account
-                    </Button>
-                  </CreateAccountDrawer>
-                </SelectContent>
-              </Select>
-
-              {errors.accountId && (
-                <p className="text-xs text-red-500">
-                  {errors.accountId.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* CATEGORY */}
-          <div className="space-y-3">
-            <label className="text-sm font-medium">Category</label>
-
-            <Select
-              value={watch("category")}
-              onValueChange={(value) => setValue("category", value)}
-            >
-              <SelectTrigger className="h-12">
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-
-              <SelectContent>
-                {filteredCategories.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id}>
-                    {cat.name}
+                {accounts.map((a) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {a.name} • ${Number(a.balance).toFixed(2)}
                   </SelectItem>
                 ))}
+                <CreateAccountDrawer>
+                  <Button variant="ghost" className="w-full justify-start">
+                    + Create account
+                  </Button>
+                </CreateAccountDrawer>
               </SelectContent>
             </Select>
+          </Field>
+        </div>
 
-            {errors.category && (
-              <p className="text-xs text-red-500">{errors.category.message}</p>
-            )}
-          </div>
+        {/* Category */}
+        <Field label="Category" error={errors.category?.message}>
+          <Select
+            value={watch("category")}
+            onValueChange={(v) => setValue("category", v)}
+          >
+            <SelectTrigger className="h-12 bg-neutral-800 border-white/10">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {filteredCategories.map((c) => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
 
-          {/* DATE */}
-          <div className="space-y-3">
-            <label className="text-sm font-medium">Date</label>
-
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "h-12 w-full pl-3 text-left font-normal",
-                    !date && "text-muted-foreground"
-                  )}
-                >
-                  {date ? format(date, "PPP") : "Pick date"}
-                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={(d) => setValue("date", d || new Date())}
-                  disabled={(d) => d > new Date()}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-
-            {errors.date && (
-              <p className="text-xs text-red-500">{errors.date.message}</p>
-            )}
-          </div>
-
-          {/* DESCRIPTION */}
-          <div className="space-y-3">
-            <label className="text-sm font-medium">Description</label>
-            <Input
-              className="h-12"
-              placeholder="Description"
-              {...register("description")}
-            />
-            {errors.description && (
-              <p className="text-xs text-red-500">
-                {errors.description.message}
-              </p>
-            )}
-          </div>
-
-          {/* RECURRING */}
-          <div className="rounded-lg border bg-gradient-to-r from-blue-50/40 to-emerald-50/40 p-5 flex items-center justify-between">
-            <div>
-              <label className="font-medium">Recurring Transaction</label>
-              <p className="text-xs text-muted-foreground">
-                Automatically repeats on a schedule
-              </p>
-            </div>
-
-            <Switch
-              checked={isRecurring}
-              onCheckedChange={(v) => setValue("isRecurring", v)}
-            />
-          </div>
-
-          {/* Interval */}
-          {isRecurring && (
-            <div className="space-y-3">
-              <label className="text-sm font-medium">Recurring Interval</label>
-
-              <Select
-                onValueChange={(v) => setValue("recurringInterval", v as any)}
-               value={watch("recurringInterval")}
+        {/* Date */}
+        <Field label="Date" error={errors.date?.message}>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "h-12 w-full justify-between bg-neutral-800 border-white/10",
+                  !date && "text-white/40"
+                )}
               >
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Select interval" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="DAILY">Daily</SelectItem>
-                  <SelectItem value="WEEKLY">Weekly</SelectItem>
-                  <SelectItem value="MONTHLY">Monthly</SelectItem>
-                  <SelectItem value="YEARLY">Yearly</SelectItem>
-                </SelectContent>
-              </Select>
+                {date ? format(date, "PPP") : "Pick a date"}
+                <CalendarIcon className="h-4 w-4 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={(d) => setValue("date", d ?? new Date())}
+                disabled={(d) => d > new Date()}
+              />
+            </PopoverContent>
+          </Popover>
+        </Field>
 
-              {errors.recurringInterval && (
-                <p className="text-xs text-red-500">
-                  {errors.recurringInterval.message}
-                </p>
-              )}
-            </div>
+        {/* Description */}
+        <Field label="Description" error={errors.description?.message}>
+          <Input
+            className="h-12 bg-neutral-800 border-white/10"
+            {...register("description")}
+          />
+        </Field>
+
+        {/* Recurring */}
+        <div className="flex items-center justify-between rounded-lg border border-white/10 bg-neutral-800 px-5 py-4">
+          <div>
+            <p className="font-medium">Recurring transaction</p>
+            <p className="text-xs text-white/50">
+              Repeat automatically
+            </p>
+          </div>
+          <Switch
+            checked={isRecurring}
+            onCheckedChange={(v) => setValue("isRecurring", v)}
+          />
+        </div>
+
+        {isRecurring && (
+          <Field
+            label="Recurring interval"
+            error={errors.recurringInterval?.message}
+          >
+            <Select
+              value={watch("recurringInterval")}
+              onValueChange={(v) =>
+                setValue("recurringInterval", v as any)
+              }
+            >
+              <SelectTrigger className="h-12 bg-neutral-800 border-white/10">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="DAILY">Daily</SelectItem>
+                <SelectItem value="WEEKLY">Weekly</SelectItem>
+                <SelectItem value="MONTHLY">Monthly</SelectItem>
+                <SelectItem value="YEARLY">Yearly</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="flex gap-3 border-t border-white/10 bg-neutral-900 px-6 py-5">
+        <Button
+          type="button"
+          variant="outline"
+          className="h-12 w-1/2 border-white/10"
+          onClick={() => router.back()}
+        >
+          Cancel
+        </Button>
+
+        <Button
+          type="submit"
+          disabled={transactionLoading}
+          className="h-12 w-1/2 bg-white text-black hover:bg-white/90"
+        >
+          {transactionLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Saving…
+            </>
+          ) : (
+            <>
+              <Check className="mr-2 h-4 w-4" />
+              {editMode ? "Update" : "Create"}
+            </>
           )}
-        </div>
+        </Button>
+      </div>
+    </form>
+  );
+}
 
-        {/* FOOTER BUTTONS */}
-        <div className="flex gap-3  rounded-b-xl border-t bg-muted/40 px-6 py-6">
-          <Button
-            type="button"
-            variant="outline"
-            className="w-1/2 h-12"
-            onClick={() => router.back()}
-          >
-            Cancel
-          </Button>
+/* ------------------------------------------------------------------ */
+/* FIELD */
+/* ------------------------------------------------------------------ */
 
-          <Button
-            type="submit"
-            className="w-1/2 h-12  bg-gradient-to-r from-blue-600 to-emerald-500 text-white hover:opacity-90"
-            disabled={transactionLoading}
-          >
-            {transactionLoading ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                {editMode ? "Updating..." : "Creating..."}
-              </span>
-            ) : (
-              <span className="flex items-center gap-2">
-                <Check className="h-4 w-4" />
-                {editMode ? "Update Transaction" : "Create Transaction"}
-              </span>
-            )}
-          </Button>
-        </div>
-      </form>
+function Field({
+  label,
+  error,
+  children,
+}: {
+  label: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-2">
+      <label className="text-sm font-medium text-white/80">
+        {label}
+      </label>
+      {children}
+      {error && <p className="text-xs text-red-400">{error}</p>}
     </div>
   );
 }
