@@ -1,222 +1,241 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import Image from "next/image";
-import { motion, Variants } from "framer-motion";
-import { ArrowRight, TrendingUp, Shield, Zap } from "lucide-react";
-import { Button } from "../ui/button";
-import Heroimg from "@/public/hero.webp";
+import Link from 'next/link'
+import { Button } from '../ui/button'
+import Image from 'next/image'
+import Heroimg from "@/public/hero.webp"
+import { motion, Variants } from 'framer-motion'
+import { ArrowRight, TrendingUp, Shield, Zap } from 'lucide-react'
 
-/* ------------------ Variants ------------------ */
-
-const container: Variants = {
+export default function Herosection() {
+  const containerVariants: Variants = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.14,
-      delayChildren: 0.12,
+      staggerChildren: 0.15,
+      delayChildren: 0.1,
     },
   },
 };
 
-const item: Variants = {
-  hidden: { opacity: 0, y: 28 },
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.7,
-      ease: [0.16, 1, 0.3, 1],
+      duration: 0.6,
+      ease: [0.25, 0.1, 0.25, 1], // cubic-bezier — fully valid
     },
   },
 };
 
-const imageVariant: Variants = {
-  hidden: { opacity: 0, y: 40, scale: 0.96 },
+
+const imageVariants = {
+  hidden: { opacity: 0, scale: 0.95, y: 40 },
   visible: {
     opacity: 1,
-    y: 0,
     scale: 1,
+    y: 0,
     transition: {
-      duration: 0.9,
-      ease: [0.16, 1, 0.3, 1],
-    },
-  },
+      duration: 0.8,
+      delay: 0.5
+    }
+  }
 };
 
-export default function HeroSection() {
+const floatingVariants = {
+  animate: {
+    y: [-10, 10, -10],
+    transition: {
+      duration: 4,
+      repeat: Infinity
+    }
+  }
+};
+
+
+
   return (
-    <section
-      aria-labelledby="hero-title"
-      className="relative min-h-screen flex items-center overflow-hidden
-        bg-gradient-to-b from-slate-50 via-white to-slate-50
-        dark:from-slate-950 dark:via-slate-900 dark:to-slate-950"
-    >
-      {/* ---------------- Animated Background Blobs ---------------- */}
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 via-white to-green-50">
+      {/* Animated Background Elements */}
       <motion.div
-        className="absolute -top-48 -right-48 h-96 w-96 rounded-full bg-indigo-500/10 blur-3xl"
-        animate={{ x: [0, 60, 0], y: [0, -40, 0] }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-20 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
+        animate={{
+          scale: [1, 1.2, 1],
+          x: [0, 50, 0],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
       />
       <motion.div
-        className="absolute -bottom-48 -left-48 h-96 w-96 rounded-full bg-purple-500/10 blur-3xl"
-        animate={{ x: [0, -50, 0], y: [0, 50, 0] }}
-        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-20 right-10 w-72 h-72 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
+        animate={{
+          scale: [1, 1.3, 1],
+          x: [0, -50, 0],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
       />
 
-      {/* ---------------- Content ---------------- */}
-      <div className="relative mx-auto w-full max-w-7xl px-6 py-28">
+      <div className="relative max-w-7xl mx-auto px-6 py-22">
         <motion.div
-          variants={container}
+          variants={containerVariants}
           initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="space-y-12 text-center"
+          animate="visible"
+          className="text-center space-y-8"
         >
           {/* Badge */}
-          <motion.div variants={item} className="flex justify-center">
-            <span
-              className="
-                inline-flex items-center gap-2 rounded-full
-                border border-indigo-200 dark:border-indigo-900/50
-                bg-indigo-50 dark:bg-indigo-950/50
-                px-4 py-2 text-xs font-semibold
-                text-indigo-700 dark:text-indigo-400
-              "
+          <motion.div variants={itemVariants} className="flex justify-center">
+            <motion.div
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-green-100 px-4 py-2 rounded-full border border-blue-200"
+              whileHover={{ scale: 1.05 }}
             >
-              <Zap className="h-4 w-4" />
-              AI-powered financial intelligence
-            </span>
+              <Zap className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-medium text-gray-700">AI-Powered Financial Intelligence</span>
+            </motion.div>
           </motion.div>
 
           {/* Heading */}
           <motion.h1
-            id="hero-title"
-            variants={item}
-            className="
-              mx-auto max-w-4xl
-              text-5xl md:text-7xl font-bold tracking-tight
-              text-slate-900 dark:text-white
-            "
+            variants={itemVariants}
+            className="text-5xl md:text-7xl font-bold leading-tight"
           >
-            Financial clarity,
+            <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-green-500 bg-clip-text text-transparent">
+              Manage Your Finance
+            </span>
             <br />
-            built for everyday decisions
+            <span className="text-gray-900">with Intelligence</span>
           </motion.h1>
 
           {/* Description */}
           <motion.p
-            variants={item}
-            className="
-              mx-auto max-w-2xl
-              text-lg md:text-xl leading-relaxed
-              text-slate-600 dark:text-slate-400
-            "
+            variants={itemVariants}
+            className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed"
           >
-            FinTrack helps you track spending, understand cash flow,
-            and make smarter financial decisions with calm, real-time insights.
+            An AI-powered financial management platform that helps you track,
+            analyze, and optimize your spending with real-time insights.
           </motion.p>
 
-          {/* CTA */}
-          <motion.div variants={item} className="flex justify-center">
+          {/* CTA Button */}
+          <motion.div variants={itemVariants}>
             <Link href="/dashboard">
-              <Button
-                size="lg"
-                className="
-                  h-12 px-8 gap-2
-                  bg-gradient-to-r from-indigo-600 to-purple-600
-                  hover:from-indigo-700 hover:to-purple-700
-                  text-white
-                  shadow-lg shadow-indigo-500/25
-                  active:scale-95
-                "
-              >
-                Get started free
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  size="lg"
+                  className="px-8 py-6 text-lg bg-gradient-to-r from-blue-600 to-green-500 hover:from-blue-700 hover:to-green-600 shadow-lg hover:shadow-xl transition-all"
+                >
+                  Get Started
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </motion.div>
             </Link>
           </motion.div>
 
-          {/* Feature Row */}
+          {/* Feature Pills */}
           <motion.div
-            variants={item}
-            className="flex flex-wrap justify-center gap-8 pt-4 text-sm"
+            variants={itemVariants}
+            className="flex flex-wrap justify-center gap-6 pt-4"
           >
-            <Feature
-              icon={<TrendingUp className="h-4 w-4" />}
-              label="Real-time analytics"
-              color="emerald"
-            />
-            <Feature
-              icon={<Shield className="h-4 w-4" />}
-              label="Bank-grade security"
-              color="indigo"
-            />
-            <Feature
-              icon={<Zap className="h-4 w-4" />}
-              label="Smart insights"
-              color="amber"
-            />
+            <motion.div
+              className="flex items-center gap-2 text-gray-600"
+              whileHover={{ y: -2 }}
+            >
+              <div className="bg-blue-100 p-2 rounded-lg">
+                <TrendingUp className="w-5 h-5 text-blue-600" />
+              </div>
+              <span className="font-medium">Real-time Analytics</span>
+            </motion.div>
+            <motion.div
+              className="flex items-center gap-2 text-gray-600"
+              whileHover={{ y: -2 }}
+            >
+              <div className="bg-green-100 p-2 rounded-lg">
+                <Shield className="w-5 h-5 text-green-600" />
+              </div>
+              <span className="font-medium">Bank-level Security</span>
+            </motion.div>
+            <motion.div
+              className="flex items-center gap-2 text-gray-600"
+              whileHover={{ y: -2 }}
+            >
+              <div className="bg-purple-100 p-2 rounded-lg">
+                <Zap className="w-5 h-5 text-purple-600" />
+              </div>
+              <span className="font-medium">Smart Insights</span>
+            </motion.div>
           </motion.div>
 
-          {/* Image */}
+          {/* Hero Image */}
           <motion.div
-            variants={imageVariant}
-            animate={{ y: [0, -8, 0] }}
-            transition={{
-              duration: 6,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="relative mx-auto mt-20 max-w-5xl"
+            variants={imageVariants}
+            className="pt-12 relative"
           >
-            <div
-              className="
-                relative overflow-hidden rounded-2xl
-                border border-slate-200 dark:border-slate-800
-                bg-white dark:bg-slate-900
-                shadow-2xl shadow-slate-900/10
-              "
+            <motion.div
+              variants={floatingVariants}
+              animate="animate"
+              className="relative mx-auto max-w-5xl"
             >
-              <Image
-                src={Heroimg}
-                width={1280}
-                height={720}
-                priority
-                alt="FinTrack dashboard showing analytics and transactions"
-                className="w-full h-auto rounded-2xl"
-              />
-            </div>
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-200 bg-white p-2">
+                <Image
+                  src={Heroimg}
+                  width={1280}
+                  height={720}
+                  alt="Fintrack Dashboard"
+                  className="rounded-xl w-full h-auto"
+                  priority
+                />
+                {/* Glow Effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-green-500/20 rounded-xl blur-2xl -z-10" />
+              </div>
+            </motion.div>
+
+            {/* Floating Stats Cards */}
+            <motion.div
+              className="absolute -left-4 top-1/4 bg-white rounded-xl shadow-xl p-4 border border-gray-100 hidden lg:block"
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.2, duration: 0.6 }}
+              whileHover={{ scale: 1.05 }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="bg-green-100 p-3 rounded-lg">
+                  <TrendingUp className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-gray-900">$12,450</p>
+                  <p className="text-sm text-gray-500">Saved this month</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="absolute -right-4 top-1/3 bg-white rounded-xl shadow-xl p-4 border border-gray-100 hidden lg:block"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.4, duration: 0.6 }}
+              whileHover={{ scale: 1.05 }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-100 p-3 rounded-lg">
+                  <Shield className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-gray-900">100%</p>
+                  <p className="text-sm text-gray-500">Secure & Encrypted</p>
+                </div>
+              </div>
+            </motion.div>
           </motion.div>
         </motion.div>
       </div>
-    </section>
-  );
-}
-
-/* ------------------ Feature Pill ------------------ */
-
-function Feature({
-  icon,
-  label,
-  color,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  color: "emerald" | "indigo" | "amber";
-}) {
-  return (
-    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-      <div
-        className={`
-          flex h-8 w-8 items-center justify-center rounded-lg
-          bg-${color}-100 dark:bg-${color}-900/30
-          text-${color}-600 dark:text-${color}-400
-        `}
-      >
-        {icon}
-      </div>
-      <span className="font-medium">{label}</span>
     </div>
-  );
+  )
 }
