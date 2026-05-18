@@ -3,9 +3,7 @@
 import { updateDefaultAccount } from "@/actions/account";
 import {
   Card,
-  CardAction,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -24,9 +22,11 @@ export interface Account {
   balance: string;
   isDefault: boolean;
 }
+
 interface Props {
   account: Account;
 }
+
 export default function AccountCard({ account }: Props) {
   const { id, name, type, balance, isDefault } = account;
 
@@ -37,75 +37,85 @@ export default function AccountCard({ account }: Props) {
     fn: updateDefaultFn,
   } = useFetch(updateDefaultAccount);
 
-const handledefaultChange = async (e: any) => {
-  e.preventDefault();
-  e.stopPropagation();
+  const handledefaultChange = async (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isDefault) {
+      toast.warning("You need at least one default account");
+      return;
+    }
+    await updateDefaultFn(id);
+  };
 
-  if (isDefault) {
-    toast.warning("You need atleast one default account");
-    return;
-  }
-  await updateDefaultFn(id);
-};
-
-
-useEffect(() => {
-  if (updatedAccount) toast.success("Account updated successfully");
-  if (error) toast.error(error || "Failed to update account");
-}, [updatedAccount, error]);
-;
+  useEffect(() => {
+    if (updatedAccount) toast.success("Account updated successfully");
+    if (error) toast.error(error || "Failed to update account");
+  }, [updatedAccount, error]);
 
   return (
     <Link href={`/account/${id}`} className="group block">
-      <Card
+      <div
         className="
-          min-h-[200px]
-          rounded-xl
-          border border-slate-200 dark:border-slate-800
-          bg-white dark:bg-slate-900
+          relative min-h-[200px]
+          border border-[#e4e1db] bg-white
           transition-all
-          hover:shadow-lg
-          hover:border-indigo-300 dark:hover:border-indigo-700
-          hover:-translate-y-1
+          hover:shadow-lg hover:border-[#5a7a52]/50
+          hover:-translate-y-0.5
+          flex flex-col
         "
       >
-        <CardHeader className="flex flex-row items-start justify-between pb-2">
-          <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-            {name}
-          </CardTitle>
+        {/* Top accent bar */}
+        <div className="absolute top-0 left-0 w-full h-0.5 bg-[#5a7a52] opacity-0 group-hover:opacity-100 transition-opacity" />
 
-          <div onClick={(e) => e.stopPropagation()}>
+        {/* Corner accents */}
+        <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#5a7a52]" />
+        <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-[#c0714a]" />
+
+        {/* Header */}
+        <div className="flex flex-row items-start justify-between px-6 pt-6 pb-2">
+          <div>
+            <p className="text-xs font-semibold text-[#9a958e] uppercase tracking-widest mb-1">
+              {type.charAt(0) + type.slice(1).toLowerCase()} account
+            </p>
+            <h3 className="text-base font-bold text-[#1a1a16]">{name}</h3>
+          </div>
+          <div onClick={(e) => e.stopPropagation()} className="pt-1">
             <Switch
-              className="cursor-pointer"
+              className="cursor-pointer data-[state=checked]:bg-[#5a7a52]"
               checked={isDefault}
               onClick={handledefaultChange}
               disabled={updateAccountLoading}
             />
           </div>
-        </CardHeader>
+        </div>
 
-        <CardContent className="pt-2">
-          <div className="mb-4 text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+        {/* Balance */}
+        <div className="flex-1 px-6 py-4">
+          <p
+            className="text-3xl font-black text-[#1a1a16] tracking-tight"
+            style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
+          >
             ${parseFloat(balance).toFixed(2)}
-          </div>
-
-          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-            {type.charAt(0) + type.slice(1).toLowerCase()} account
           </p>
-        </CardContent>
+          {isDefault && (
+            <span className="inline-block mt-2 border border-[#5a7a52]/30 bg-[#e8f0e4] px-2 py-0.5 text-[10px] font-semibold text-[#3d5c35] uppercase tracking-widest">
+              Default
+            </span>
+          )}
+        </div>
 
-        <CardFooter className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-4 text-xs">
-          <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
-            <ArrowUpRight className="h-4 w-4" />
+        {/* Footer */}
+        <div className="flex items-center justify-between border-t border-[#e4e1db] px-6 py-4 text-xs">
+          <div className="flex items-center gap-1.5 text-[#5a7a52] font-semibold">
+            <ArrowUpRight className="h-3.5 w-3.5" />
             <span>Income</span>
           </div>
-
-          <div className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400 font-medium">
-            <ArrowDownRight className="h-4 w-4" />
+          <div className="flex items-center gap-1.5 text-[#c0714a] font-semibold">
+            <ArrowDownRight className="h-3.5 w-3.5" />
             <span>Expense</span>
           </div>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
     </Link>
   );
 }

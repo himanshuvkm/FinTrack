@@ -1,13 +1,6 @@
 "use client";
 import { updateBudget } from "@/actions/budjet";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import useFetch from "@/hooks/usefetch";
@@ -34,20 +27,17 @@ export default function BudgetProgress({
     error,
   } = useFetch(updateBudget);
 
-const percentUsed = useMemo(() => {
-  if (!initialBudget) return 0;
-  return (currentExpenses / initialBudget.amount) * 100;
-}, [initialBudget, currentExpenses]);
-
+  const percentUsed = useMemo(() => {
+    if (!initialBudget) return 0;
+    return (currentExpenses / initialBudget.amount) * 100;
+  }, [initialBudget, currentExpenses]);
 
   const handleUpdateBudget = async () => {
     const amount = parseFloat(newBudget);
-
     if (isNaN(amount) || amount <= 0) {
       toast.error("Please enter a valid amount");
       return;
     }
-
     await updateBudgetFn(amount);
   };
 
@@ -64,130 +54,108 @@ const percentUsed = useMemo(() => {
   }, [updatedBudget]);
 
   useEffect(() => {
-    if (error) {
-      toast.error("Failed to update budget");
-    }
+    if (error) toast.error("Failed to update budget");
   }, [error]);
 
-  return (
-    <Card className="relative rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-lg">
-      <CardHeader className="flex flex-row items-start justify-between pb-4">
-        <div className="flex-1">
-          <CardTitle className="text-lg font-semibold tracking-wide text-slate-900 dark:text-white">
-            Monthly Budget
-          </CardTitle>
+  const barColor =
+    percentUsed >= 80
+      ? "bg-[#c0714a]"
+      : percentUsed >= 60
+      ? "bg-[#8b7355]"
+      : "bg-[#5a7a52]";
 
-          <div className="mt-3 flex items-center gap-2">
+  const textColor =
+    percentUsed >= 80
+      ? "text-[#c0714a]"
+      : percentUsed >= 60
+      ? "text-[#8b7355]"
+      : "text-[#5a7a52]";
+
+  return (
+    <div className="relative border border-[#e4e1db] bg-white shadow-sm">
+      {/* Top accent */}
+      <div className="absolute top-0 left-0 w-full h-0.5 bg-[#5a7a52]" />
+
+      <div className="p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <p className="text-xs font-semibold text-[#9a958e] uppercase tracking-widest mb-1">
+              Budget Tracker
+            </p>
+            <h3
+              className="text-xl font-black text-[#1a1a16] tracking-tight"
+              style={{ fontFamily: "'Georgia', serif" }}
+            >
+              Monthly Budget
+            </h3>
+          </div>
+
+          {/* Edit Controls */}
+          <div className="flex items-center gap-2">
             {isEditing ? (
-              <div className="flex items-center gap-2 rounded-lg bg-slate-50 dark:bg-slate-800 p-1.5 ring-1 ring-slate-200 dark:ring-slate-700">
+              <div className="flex items-center gap-2 border border-[#e4e1db] bg-[#faf9f6] px-3 py-1.5">
                 <Input
                   type="number"
                   value={newBudget}
                   onChange={(e) => setNewBudget(e.target.value)}
-                  className="
-                    h-8 w-32
-                    border-0 bg-transparent
-                    text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500
-                    focus-visible:ring-0
-                  "
+                  className="h-8 w-32 border-0 bg-transparent text-[#1a1a16] placeholder:text-[#9a958e] focus-visible:ring-0 text-sm font-semibold"
                   placeholder="Amount"
                   autoFocus
                   disabled={isLoading}
                 />
-
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="
-                    h-8 w-8
-                    border-emerald-200 dark:border-emerald-900
-                    bg-emerald-50 dark:bg-emerald-950/30
-                    hover:bg-emerald-100 dark:hover:bg-emerald-950/50
-                  "
+                <button
                   onClick={handleUpdateBudget}
                   disabled={isLoading}
+                  className="w-7 h-7 bg-[#5a7a52] text-white hover:bg-[#3d5c35] transition-colors flex items-center justify-center"
                 >
-                  <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                </Button>
-
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="
-                    h-8 w-8
-                    border-rose-200 dark:border-rose-900
-                    bg-rose-50 dark:bg-rose-950/30
-                    hover:bg-rose-100 dark:hover:bg-rose-950/50
-                  "
+                  <Check className="h-3.5 w-3.5" />
+                </button>
+                <button
                   onClick={handleCancel}
                   disabled={isLoading}
+                  className="w-7 h-7 border border-[#e4e1db] text-[#6b6860] hover:border-[#c0714a] hover:text-[#c0714a] transition-colors flex items-center justify-center"
                 >
-                  <X className="h-4 w-4 text-rose-600 dark:text-rose-400" />
-                </Button>
+                  <X className="h-3.5 w-3.5" />
+                </button>
               </div>
             ) : (
-              <>
-                <CardDescription className="text-sm text-slate-600 dark:text-slate-400">
+              <div className="flex items-center gap-3">
+                <p className="text-sm text-[#6b6860]">
                   {initialBudget
                     ? `$${currentExpenses.toFixed(2)} of $${initialBudget.amount.toFixed(2)} spent`
                     : "No budget set"}
-                </CardDescription>
-
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="
-                    h-7 w-7
-                    rounded-lg
-                    text-slate-500 dark:text-slate-400
-                    hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white
-                  "
+                </p>
+                <button
                   onClick={() => setIsEditing(true)}
+                  className="w-7 h-7 border border-[#e4e1db] text-[#9a958e] hover:border-[#5a7a52] hover:text-[#5a7a52] transition-colors flex items-center justify-center"
                 >
-                  <Pencil className="h-3.5 w-3.5" />
-                </Button>
-              </>
+                  <Pencil className="h-3 w-3" />
+                </button>
+              </div>
             )}
           </div>
         </div>
-      </CardHeader>
 
-      <CardContent>
         {initialBudget && (
           <div className="space-y-3">
-            {/* Progress track */}
-            <div className="h-3 w-full rounded-full bg-slate-200 dark:bg-slate-800">
-              <Progress
-                value={percentUsed}
-                className="h-3 rounded-full bg-transparent"
-                indicatorClassName={
-                  percentUsed >= 80
-                    ? "bg-rose-500"
-                    : percentUsed >= 60
-                    ? "bg-amber-400"
-                    : "bg-emerald-500"
-                }
+            {/* Progress bar */}
+            <div className="h-2 w-full bg-[#f0ede8] rounded-none overflow-hidden">
+              <div
+                className={`h-full ${barColor} transition-all duration-500`}
+                style={{ width: `${Math.min(percentUsed, 100)}%` }}
               />
             </div>
 
             {/* Meta */}
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-500 dark:text-slate-400 font-medium">Usage</span>
-              <span
-                className={
-                  percentUsed >= 80
-                    ? "font-semibold text-rose-600 dark:text-rose-400"
-                    : percentUsed >= 60
-                    ? "font-semibold text-amber-600 dark:text-amber-400"
-                    : "font-semibold text-emerald-600 dark:text-emerald-400"
-                }
-              >
+              <span className="text-[#9a958e] font-medium">Usage</span>
+              <span className={`font-bold ${textColor}`}>
                 {percentUsed.toFixed(1)}%
               </span>
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

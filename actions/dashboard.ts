@@ -1,36 +1,36 @@
 "use server";
-import prismaDb from "@/lib/prisma";
+import { db as prismaDb } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
-    const serializeTransaction = (obj: any) => {
-    const serialized = { ...obj };
+const serializeTransaction = (obj: any) => {
+  const serialized = { ...obj };
 
-    if (obj.balance) {
-        serialized.balance = obj.balance.toNumber();
+  if (obj.balance) {
+    serialized.balance = obj.balance.toNumber();
+  }
+  if (obj.amount) {
+    serialized.amount = obj.amount.toNumber();
+  }
+  return serialized;
+};
+
+export async function createAccount(data: any) {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      throw new Error("Unauthorized");
     }
-    if (obj.amount) {
-        serialized.amount = obj.amount.toNumber();
+
+    const User = await prismaDb.user.findUnique({
+      where: {
+        clerkUserId: userId,
+      },
+    });
+
+    if (!User) {
+      throw new Error("User not found");
     }
-    return serialized;
-    };
-
-    export async function createAccount(data: any) {
-    try {
-        const { userId } = await auth();
-        if (!userId) {
-        throw new Error("Unauthorized");
-        }
-
-        const User = await prismaDb.user.findUnique({
-        where: {
-            clerkUserId: userId,
-        },
-        });
-
-        if (!User) {
-        throw new Error("User not found");
-        }
     //convert the balance into the float
 
     const balanceFloat = parseFloat(data.balance);
@@ -88,10 +88,10 @@ import { revalidatePath } from "next/cache";
   }
 }
 
-export async function GetUserAccounts(){
-try {
+export async function GetUserAccounts() {
+  try {
 
-     const { userId } = await auth();
+    const { userId } = await auth();
     if (!userId) {
       throw new Error("Unauthorized");
     }
@@ -107,25 +107,25 @@ try {
     }
 
     const accounts = await prismaDb.account.findMany({
-        where: {
-            userId: User.id,
-          },
-        orderBy:{createdAt:"desc"},
-        include:{
-            _count:{
-                select:{
-                    transactions:true
-                }
-            }
+      where: {
+        userId: User.id,
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        _count: {
+          select: {
+            transactions: true
+          }
         }
+      }
     })
-     const serializedAccount = accounts.map(serializeTransaction);
-     return { success: true, data: serializedAccount };
-    
-} catch (error:any) {
+    const serializedAccount = accounts.map(serializeTransaction);
+    return { success: true, data: serializedAccount };
+
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : String(error);
     return { success: false, error: message };
-}
+  }
 
 }
 

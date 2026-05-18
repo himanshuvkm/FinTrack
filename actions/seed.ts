@@ -1,5 +1,5 @@
 "use server";
-import prismaDb from "@/lib/prisma";
+import { db as prismaDb } from "@/lib/prisma";
 import { subDays } from "date-fns";
 
 const ACCOUNT_ID: string = "14b8fa49-e825-4519-b017-e5319d5cfe15";

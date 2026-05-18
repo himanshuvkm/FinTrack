@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import { Github, Twitter, Linkedin, Mail } from 'lucide-react';
+import { FaGithub, FaTwitter, FaLinkedin, FaEnvelope } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
 export default function FintrackFooter() {
@@ -12,49 +12,31 @@ export default function FintrackFooter() {
     visible: {
       opacity: 1,
       y: 0,
-      transition: {
-        duration: 0.6,
-        staggerChildren: 0.1
-      }
-    }
+      transition: { duration: 0.6, staggerChildren: 0.1 },
+    },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 10 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.4 }
-    }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
   };
 
   return (
-    <footer className="relative overflow-hidden bg-gradient-to-br from-white to-green-100 py-12  border-gray-200">
-      {/* Animated Background Elements */}
-      <motion.div
-        className="absolute top-0 left-10 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"
-        animate={{
-          scale: [1, 1.2, 1],
-          x: [0, 30, 0],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut"
+    <footer className="relative overflow-hidden border-t border-[#1a1a16]/10 bg-[#faf9f6] py-12">
+
+      {/* Dot grid texture */}
+      <div
+        className="absolute inset-0 opacity-[0.25]"
+        style={{
+          backgroundImage: `radial-gradient(circle, #c8c4bb 1px, transparent 1px)`,
+          backgroundSize: '32px 32px',
         }}
       />
-      <motion.div
-        className="absolute bottom-0 right-10 w-64 h-64 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"
-        animate={{
-          scale: [1, 1.3, 1],
-          x: [0, -30, 0],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      />
+
+      {/* Olive blob */}
+      <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-[#e8f0e4] opacity-50 blur-[60px]" />
+      {/* Terracotta blob */}
+      <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-[#f5e8df] opacity-40 blur-[60px]" />
 
       <div className="relative max-w-7xl mx-auto px-6">
         <motion.div
@@ -64,57 +46,67 @@ export default function FintrackFooter() {
           viewport={{ once: true }}
           className="flex flex-col items-center gap-6"
         >
+          {/* Logo */}
+          <motion.div variants={itemVariants}>
+            <span
+              className="text-3xl font-black tracking-tight text-[#1a1a16]"
+              style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
+            >
+              Fin<em className="not-italic text-[#5a7a52]">track</em>
+            </span>
+          </motion.div>
+
+          {/* Divider line with accents */}
+          <motion.div variants={itemVariants} className="flex items-center gap-3 w-full max-w-xs">
+            <div className="flex-1 h-px bg-[#5a7a52]/30" />
+            <div className="w-1.5 h-1.5 bg-[#5a7a52] rounded-full" />
+            <div className="flex-1 h-px bg-[#5a7a52]/30" />
+          </motion.div>
+
           {/* Social Icons */}
           <motion.div variants={itemVariants} className="flex gap-4">
             {[
-              { icon: Github, href: '#', label: 'GitHub' },
-              { icon: Twitter, href: '#', label: 'Twitter' },
-              { icon: Linkedin, href: '#', label: 'LinkedIn' },
-              { icon: Mail, href: '#', label: 'Email' }
+              { icon: FaGithub, href: '#', label: 'GitHub' },
+              { icon: FaTwitter, href: '#', label: 'Twitter' },
+              { icon: FaLinkedin, href: '#', label: 'LinkedIn' },
+              { icon: FaEnvelope, href: '#', label: 'Email' },
             ].map((social, index) => (
               <motion.a
                 key={index}
                 href={social.href}
                 aria-label={social.label}
-                className="bg-gradient-to-r from-blue-600 to-green-500 p-3 rounded-full text-white hover:shadow-lg transition-all"
-                whileHover={{ scale: 1.1, y: -2 }}
+                className="w-10 h-10 border border-[#1a1a16]/20 bg-white text-[#6b6860] hover:border-[#5a7a52] hover:text-[#5a7a52] hover:bg-[#5a7a52]/5 transition-all flex items-center justify-center"
+                whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <social.icon className="h-5 w-5" />
+                <social.icon className="h-4 w-4" />
               </motion.a>
             ))}
           </motion.div>
 
-          {/* Copyright and Links */}
-          <motion.div variants={itemVariants} className="text-center">
-            <p className="text-gray-600 text-sm">
-              © {currentYear} Fintrack. All rights reserved. |{' '}
+          {/* Links */}
+          <motion.div variants={itemVariants} className="flex items-center gap-6">
+            {['Privacy Policy', 'Terms of Service', 'Help'].map((link) => (
               <motion.a
+                key={link}
                 href="#"
-                className="text-blue-600 hover:text-green-500 transition-colors font-medium"
-                whileHover={{ scale: 1.05 }}
+                className="text-xs text-[#9a958e] hover:text-[#3d5c35] font-medium tracking-wide uppercase transition-colors"
+                whileHover={{ scale: 1.03 }}
                 style={{ display: 'inline-block' }}
               >
-                Privacy Policy
+                {link}
               </motion.a>
-              {' '}|{' '}
-              <motion.a
-                href="#"
-                className="text-blue-600 hover:text-green-500 transition-colors font-medium"
-                whileHover={{ scale: 1.05 }}
-                style={{ display: 'inline-block' }}
-              >
-                Terms of Service
-              </motion.a>
-            </p>
+            ))}
           </motion.div>
 
-          {/* Made with love text */}
-          <motion.div
-            variants={itemVariants}
-            className="text-xs text-gray-500"
-          >
-            Made with <span className="text-red-500">♥</span> for smarter financial management
+          {/* Copyright */}
+          <motion.div variants={itemVariants} className="text-center">
+            <p className="text-[#9a958e] text-xs tracking-wide">
+              © {currentYear} Fintrack. All rights reserved.
+            </p>
+            <p className="text-[#c8c4bb] text-xs mt-1">
+              Built for people who take their finances seriously.
+            </p>
           </motion.div>
         </motion.div>
       </div>

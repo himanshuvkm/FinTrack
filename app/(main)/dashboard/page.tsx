@@ -3,194 +3,217 @@ import CreateAccountDrawer from "@/components/ui/create-account-drawer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, TrendingUp, TrendingDown, Wallet, ArrowUpRight } from "lucide-react";
 import { getDashboardData, GetUserAccounts } from "@/actions/dashboard";
-import AccountCard ,{Account}from "./_components/accountCard";
+import AccountCard, { Account } from "./_components/accountCard";
 import { getBudgetData } from "@/actions/budjet";
 import BudgetProgress from "./_components/BudgetProgress";
 import { DashboardOverview } from "./_components/transaction-overview";
-import { getAccountWithTransaction } from "@/actions/account";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-
-
 export default async function Dashboardpage() {
+  const accountsPromise = GetUserAccounts();
+  const dashboardPromise = getDashboardData();
 
-const accountsPromise = GetUserAccounts();
-const dashboardPromise = getDashboardData();
+  const data = await accountsPromise;
+  const accounts: Account[] =
+    data?.success && Array.isArray(data.data) ? data.data : [];
 
-const data = await accountsPromise;
-const accounts: Account[] =
-  data?.success && Array.isArray(data.data) ? data.data : [];
+  const defaultAccount = accounts.find((a) => a.isDefault);
 
-const defaultAccount = accounts.find(a => a.isDefault);
+  const budgetPromise = defaultAccount
+    ? getBudgetData(defaultAccount.id)
+    : Promise.resolve(null);
 
-const budgetPromise = defaultAccount
-  ? getBudgetData(defaultAccount.id)
-  : Promise.resolve(null);
-
-const [transactions, budgetData] = await Promise.all([
-  dashboardPromise,
-  budgetPromise,
-]);
-
- 
+  const [transactions, budgetData] = await Promise.all([
+    dashboardPromise,
+    budgetPromise,
+  ]);
 
   // Calculate summary statistics
-  const totalBalance = accounts.reduce((sum, acc) => sum + parseFloat(acc.balance || "0"), 0);
-  
+  const totalBalance = accounts.reduce(
+    (sum, acc) => sum + parseFloat(acc.balance || "0"),
+    0
+  );
+
   const transactionsArray = Array.isArray(transactions) ? transactions : [];
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
-  
+
   const monthlyIncome = transactionsArray
-    .filter(t => {
+    .filter((t) => {
       if (!t || !t.date) return false;
       const tDate = new Date(t.date);
-      return t.type === "INCOME" && 
-             tDate.getMonth() === currentMonth && 
-             tDate.getFullYear() === currentYear;
+      return (
+        t.type === "INCOME" &&
+        tDate.getMonth() === currentMonth &&
+        tDate.getFullYear() === currentYear
+      );
     })
     .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-    
+
   const monthlyExpenses = transactionsArray
-    .filter(t => {
+    .filter((t) => {
       if (!t || !t.date) return false;
       const tDate = new Date(t.date);
-      return t.type === "EXPENSE" && 
-             tDate.getMonth() === currentMonth && 
-             tDate.getFullYear() === currentYear;
+      return (
+        t.type === "EXPENSE" &&
+        tDate.getMonth() === currentMonth &&
+        tDate.getFullYear() === currentYear
+      );
     })
     .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-    
+
   const netBalance = monthlyIncome - monthlyExpenses;
 
   return (
-    <div className="min-h-screen px-6 py-8">
-      <div className="mx-auto max-w-7xl space-y-8">
+    <div className="min-h-screen bg-[#faf9f6] px-6 py-10">
+      {/* Dot grid */}
+      <div
+        className="fixed inset-0 pointer-events-none opacity-[0.2] -z-0"
+        style={{
+          backgroundImage: `radial-gradient(circle, #c8c4bb 1px, transparent 1px)`,
+          backgroundSize: "32px 32px",
+        }}
+      />
 
-        {/* ================= Header ================= */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="relative mx-auto max-w-7xl space-y-10 z-10">
+
+        {/* ── Page Header ── */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-[#e4e1db] pb-8">
           <div className="space-y-1">
-            <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
+            <p className="text-xs font-semibold text-[#5a7a52] uppercase tracking-widest">
+              Overview
+            </p>
+            <h1
+              className="text-5xl font-black leading-tight tracking-tighter text-[#1a1a16]"
+              style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
+            >
               Dashboard
             </h1>
-            <p className="text-slate-600 dark:text-slate-400">
-              Overview of your financial activity
+            <p className="text-[#6b6860] text-sm mt-1">
+              Your complete financial picture
             </p>
           </div>
           <Link href="/transactions/create">
-            <Button className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 shadow-lg shadow-indigo-500/25">
+            <Button className="bg-[#1a1a16] hover:bg-[#2e2e28] text-[#faf9f6] rounded-none border-0 text-sm font-semibold tracking-wide px-6 py-5 gap-2 transition-all">
               <Plus className="h-4 w-4" />
               Add Transaction
             </Button>
           </Link>
         </div>
 
-        {/* ================= Summary Stats ================= */}
+        {/* ── Summary Stats ── */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
           {/* Total Balance */}
-          <Card className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                    Total Balance
-                  </p>
-                  <p className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    ${totalBalance.toFixed(2)}
-                  </p>
-                </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 dark:bg-indigo-900/30">
-                  <Wallet className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-                </div>
+          <div className="relative border border-[#e4e1db] bg-white p-6 shadow-sm hover:shadow-md transition-shadow group">
+            <div className="absolute top-0 left-0 w-full h-0.5 bg-[#5a7a52]" />
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-[#9a958e] uppercase tracking-widest">
+                Total Balance
+              </p>
+              <div className="w-9 h-9 flex items-center justify-center border border-[#5a7a52]/20 bg-[#e8f0e4]">
+                <Wallet className="h-4 w-4 text-[#5a7a52]" />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            <p
+              className="text-3xl font-black text-[#1a1a16] tracking-tight"
+              style={{ fontFamily: "'Georgia', serif" }}
+            >
+              ${totalBalance.toFixed(2)}
+            </p>
+          </div>
 
           {/* Monthly Income */}
-          <Card className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                    Monthly Income
-                  </p>
-                  <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                    ${monthlyIncome.toFixed(2)}
-                  </p>
-                </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-                  <TrendingUp className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
-                </div>
+          <div className="relative border border-[#e4e1db] bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="absolute top-0 left-0 w-full h-0.5 bg-[#5a7a52]" />
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-[#9a958e] uppercase tracking-widest">
+                Monthly Income
+              </p>
+              <div className="w-9 h-9 flex items-center justify-center border border-[#5a7a52]/20 bg-[#e8f0e4]">
+                <TrendingUp className="h-4 w-4 text-[#5a7a52]" />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            <p
+              className="text-3xl font-black text-[#5a7a52] tracking-tight"
+              style={{ fontFamily: "'Georgia', serif" }}
+            >
+              ${monthlyIncome.toFixed(2)}
+            </p>
+          </div>
 
           {/* Monthly Expenses */}
-          <Card className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                    Monthly Expenses
-                  </p>
-                  <p className="text-2xl font-bold text-rose-600 dark:text-rose-400">
-                    ${monthlyExpenses.toFixed(2)}
-                  </p>
-                </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-100 dark:bg-rose-900/30">
-                  <TrendingDown className="h-6 w-6 text-rose-600 dark:text-rose-400" />
-                </div>
+          <div className="relative border border-[#e4e1db] bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="absolute top-0 left-0 w-full h-0.5 bg-[#c0714a]" />
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-[#9a958e] uppercase tracking-widest">
+                Monthly Expenses
+              </p>
+              <div className="w-9 h-9 flex items-center justify-center border border-[#c0714a]/20 bg-[#f5e8df]">
+                <TrendingDown className="h-4 w-4 text-[#c0714a]" />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            <p
+              className="text-3xl font-black text-[#c0714a] tracking-tight"
+              style={{ fontFamily: "'Georgia', serif" }}
+            >
+              ${monthlyExpenses.toFixed(2)}
+            </p>
+          </div>
 
           {/* Net Balance */}
-          <Card className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                    Net Balance
-                  </p>
-                  <p className={`text-2xl font-bold ${
-                    netBalance >= 0 
-                      ? "text-emerald-600 dark:text-emerald-400" 
-                      : "text-rose-600 dark:text-rose-400"
-                  }`}>
-                    ${netBalance.toFixed(2)}
-                  </p>
-                </div>
-                <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${
+          <div className="relative border border-[#e4e1db] bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div
+              className={`absolute top-0 left-0 w-full h-0.5 ${
+                netBalance >= 0 ? "bg-[#5a7a52]" : "bg-[#c0714a]"
+              }`}
+            />
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-[#9a958e] uppercase tracking-widest">
+                Net Balance
+              </p>
+              <div
+                className={`w-9 h-9 flex items-center justify-center border ${
                   netBalance >= 0
-                    ? "bg-emerald-100 dark:bg-emerald-900/30"
-                    : "bg-rose-100 dark:bg-rose-900/30"
-                }`}>
-                  <ArrowUpRight className={`h-6 w-6 ${
-                    netBalance >= 0
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-rose-600 dark:text-rose-400"
-                  }`} />
-                </div>
+                    ? "border-[#5a7a52]/20 bg-[#e8f0e4]"
+                    : "border-[#c0714a]/20 bg-[#f5e8df]"
+                }`}
+              >
+                <ArrowUpRight
+                  className={`h-4 w-4 ${
+                    netBalance >= 0 ? "text-[#5a7a52]" : "text-[#c0714a]"
+                  }`}
+                />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            <p
+              className={`text-3xl font-black tracking-tight ${
+                netBalance >= 0 ? "text-[#5a7a52]" : "text-[#c0714a]"
+              }`}
+              style={{ fontFamily: "'Georgia', serif" }}
+            >
+              ${netBalance.toFixed(2)}
+            </p>
+          </div>
         </div>
 
-        {/* ================= Budget ================= */}
+        {/* ── Budget ── */}
         {defaultAccount && (
-          <div>
-            <BudgetProgress
-              initialBudget={budgetData?.budget}
-              currentExpenses={budgetData?.currentExpenses || 0}
-            />
-          </div>
+          <BudgetProgress
+            initialBudget={budgetData?.budget}
+            currentExpenses={budgetData?.currentExpenses || 0}
+          />
         )}
 
-        {/* ================= Overview ================= */}
+        {/* ── Transaction Overview ── */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 bg-[#5a7a52] rounded-full" />
+            <h2
+              className="text-2xl font-black tracking-tight text-[#1a1a16]"
+              style={{ fontFamily: "'Georgia', serif" }}
+            >
               Transaction Overview
             </h2>
           </div>
@@ -202,14 +225,18 @@ const [transactions, budgetData] = await Promise.all([
           </Suspense>
         </div>
 
-        {/* ================= Accounts ================= */}
+        {/* ── Accounts ── */}
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 bg-[#5a7a52] rounded-full" />
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+              <h2
+                className="text-2xl font-black tracking-tight text-[#1a1a16]"
+                style={{ fontFamily: "'Georgia', serif" }}
+              >
                 Your Accounts
               </h2>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-xs text-[#9a958e] mt-0.5">
                 Manage and track your financial accounts
               </p>
             </div>
@@ -219,41 +246,29 @@ const [transactions, budgetData] = await Promise.all([
 
             {/* Create Account */}
             <CreateAccountDrawer>
-              <Card
+              <div
                 className="
                   group cursor-pointer
-                  rounded-xl
-                  border-2 border-dashed border-slate-300 dark:border-slate-700
-                  bg-white dark:bg-slate-900
+                  border-2 border-dashed border-[#c8c4bb]
+                  bg-white
                   transition-all
-                  hover:border-indigo-400 dark:hover:border-indigo-600
-                  hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20
-                  hover:shadow-lg
+                  hover:border-[#5a7a52]
+                  hover:bg-[#e8f0e4]/30
+                  hover:shadow-md
+                  min-h-[200px]
+                  flex flex-col items-center justify-center gap-3 p-8 text-center
                 "
               >
-                <CardContent className="flex min-h-[200px] flex-col items-center justify-center gap-3 p-8 text-center">
-                  <div
-                    className="
-                      flex h-14 w-14 items-center justify-center
-                      rounded-xl
-                      bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30
-                      text-indigo-600 dark:text-indigo-400
-                      transition-transform
-                      group-hover:scale-110
-                    "
-                  >
-                    <Plus className="h-6 w-6" />
-                  </div>
-
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                    Create New Account
-                  </p>
-
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Add a new account to track
-                  </p>
-                </CardContent>
-              </Card>
+                <div className="w-12 h-12 border border-[#5a7a52]/30 bg-[#e8f0e4] flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <Plus className="h-5 w-5 text-[#5a7a52]" />
+                </div>
+                <p className="text-sm font-semibold text-[#1a1a16]">
+                  Create New Account
+                </p>
+                <p className="text-xs text-[#9a958e]">
+                  Add a new account to track
+                </p>
+              </div>
             </CreateAccountDrawer>
 
             {/* Existing Accounts */}

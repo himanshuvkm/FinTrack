@@ -1,17 +1,17 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import  prismaprismaDb  from "@/lib/prisma";
+import { db as prismaprismaDb } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import {request} from "@arcjet/next"
+import { request } from "@arcjet/next"
 import { aj } from "@/lib/arcjet";
 import { NextRequest } from "next/server";
 import { GoogleGenAI } from "@google/genai";
-import prismaDb from "@/lib/prisma";
+import { db as prismaDb } from "@/lib/prisma";
 
 export type FormDataTransaction = {
   type: "INCOME" | "EXPENSE";
-  amount: string; 
+  amount: string;
   date: Date;
   accountId: string;
   category: string;
@@ -21,7 +21,7 @@ export type FormDataTransaction = {
 };
 
 
-const genAI = new GoogleGenAI({apiKey: process.env.GEMINI_API_KEY});
+const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const serializeAmount = (obj: any) => ({
   ...obj,
@@ -34,26 +34,26 @@ export async function createTransaction(data: FormDataTransaction) {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
 
-//Arcjet logic
+    //Arcjet logic
     const req = await request()
 
-const decision = await aj.protect(req, {
-  userId,
-  requested: 1
-});  
+    const decision = await aj.protect(req, {
+      userId,
+      requested: 1
+    });
 
-    if(decision.isDenied()){
-     if(decision.reason.isRateLimit()){
-      const {remaining ,reset}=decision.reason;
-      console.error ({
-        code:"RATE_LIMIT_EXCEEDED", 
-        details:{
-          remaining,
-          resetInSeconds : reset,
-        }
-      })
-      throw new Error("Rate limit exceeded. Please try again later.");
-     }
+    if (decision.isDenied()) {
+      if (decision.reason.isRateLimit()) {
+        const { remaining, reset } = decision.reason;
+        console.error({
+          code: "RATE_LIMIT_EXCEEDED",
+          details: {
+            remaining,
+            resetInSeconds: reset,
+          }
+        })
+        throw new Error("Rate limit exceeded. Please try again later.");
+      }
       throw new Error("Request denied.");
     }
 
@@ -90,7 +90,7 @@ const decision = await aj.protect(req, {
           userId: user.id,
           nextRecurringDate:
             data.isRecurring && data.recurringInterval
-              ? calculateNextRecurringDate({startDate: data.date, interval: data.recurringInterval})
+              ? calculateNextRecurringDate({ startDate: data.date, interval: data.recurringInterval })
               : null,
         },
       });
@@ -114,7 +114,7 @@ const decision = await aj.protect(req, {
 }
 
 
-function calculateNextRecurringDate({startDate, interval}:{startDate:Date,interval:"DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY"}) {
+function calculateNextRecurringDate({ startDate, interval }: { startDate: Date, interval: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY" }) {
   const date = new Date(startDate);
 
   switch (interval) {
@@ -200,7 +200,7 @@ export async function scanReceipt(file: Blob) {
   }
 }
 
-export async function getTransaction(id:any) {
+export async function getTransaction(id: any) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
@@ -222,7 +222,7 @@ export async function getTransaction(id:any) {
   return serializeAmount(transaction);
 }
 
-export async function updateTransaction(id:any, data:FormDataTransaction) {
+export async function updateTransaction(id: any, data: FormDataTransaction) {
   try {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");

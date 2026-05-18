@@ -7,8 +7,8 @@ export default function Layout({
 }) {
   return (
     <>
-      <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
-        <div className="container mx-auto px-5 py-16">
+      <main className="min-h-screen bg-[#faf9f6]">
+        <div className="pt-16">
           {children}
         </div>
 
@@ -17,7 +17,7 @@ export default function Layout({
           theme="light"
           toastOptions={{
             className:
-              "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white shadow-lg",
+              "bg-white border border-[#e4e1db] text-[#1a1a16] shadow-lg rounded-none",
           }}
         />
       </main>

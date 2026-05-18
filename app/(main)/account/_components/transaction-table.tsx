@@ -92,8 +92,7 @@ export default function TransactionTable({
 
   const ITEMS_PER_PAGE = 10;
 
-  /* ---------------- Filtering + Sorting ---------------- */
-
+  /* ── Filtering + Sorting ── */
   const filteredAndSortedTransactions = useMemo(() => {
     let result = [...transactions];
 
@@ -103,30 +102,23 @@ export default function TransactionTable({
         t.description?.toLowerCase().includes(q)
       );
     }
-
     if (typeFilter) {
       result = result.filter((t) => t.type === typeFilter);
     }
-
     if (recurringFilter && recurringFilter !== "all") {
       result = result.filter((t) =>
-        recurringFilter === "recurring"
-          ? t.isRecurring
-          : !t.isRecurring
+        recurringFilter === "recurring" ? t.isRecurring : !t.isRecurring
       );
     }
 
     result.sort((a, b) => {
       let c = 0;
-      if (sortConfig.field === "date") {
+      if (sortConfig.field === "date")
         c = new Date(a.date).getTime() - new Date(b.date).getTime();
-      }
-      if (sortConfig.field === "amount") {
+      if (sortConfig.field === "amount")
         c = Number(a.amount) - Number(b.amount);
-      }
-      if (sortConfig.field === "category") {
+      if (sortConfig.field === "category")
         c = a.category.localeCompare(b.category);
-      }
       return sortConfig.direction === "asc" ? c : -c;
     });
 
@@ -139,22 +131,17 @@ export default function TransactionTable({
 
   const paginatedTransactions = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredAndSortedTransactions.slice(
-      start,
-      start + ITEMS_PER_PAGE
-    );
+    return filteredAndSortedTransactions.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredAndSortedTransactions, currentPage]);
 
   const handleSort = (field: string) => {
     setSortConfig((c) => ({
       field,
-      direction:
-        c.field === field && c.direction === "asc" ? "desc" : "asc",
+      direction: c.field === field && c.direction === "asc" ? "desc" : "asc",
     }));
   };
 
-  /* ---------------- Delete ---------------- */
-
+  /* ── Delete ── */
   const {
     loading: deleteLoading,
     fn: deleteFn,
@@ -168,25 +155,30 @@ export default function TransactionTable({
     }
   }, [deleted, deleteLoading]);
 
-  /* ---------------- UI ---------------- */
+  const SortIcon = ({ field }: { field: string }) => {
+    if (sortConfig.field !== field)
+      return <ChevronDown className="h-3 w-3 opacity-30" />;
+    return sortConfig.direction === "asc" ? (
+      <ChevronUp className="h-3 w-3 text-[#5a7a52]" />
+    ) : (
+      <ChevronDown className="h-3 w-3 text-[#5a7a52]" />
+    );
+  };
 
+  /* ── UI ── */
   return (
-    <section
-      aria-labelledby="transactions-title"
-      className="space-y-4 px-3"
-    >
-      {deleteLoading && (
-        <BarLoader width="100%" color="#a855f7" />
-      )}
+    <section aria-labelledby="transactions-title" className="space-y-4">
+      {deleteLoading && <BarLoader width="100%" color="#5a7a52" />}
 
-      {/* ---------------- Controls ---------------- */}
-      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm">
+      {/* ── Controls ── */}
+      <div className="flex flex-wrap items-center gap-3 border border-[#e4e1db] bg-white p-4 shadow-sm">
         <h2 id="transactions-title" className="sr-only">
           Transactions Table
         </h2>
 
+        {/* Search */}
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#9a958e]" />
           <Input
             aria-label="Search transactions"
             placeholder="Search transactions…"
@@ -195,92 +187,117 @@ export default function TransactionTable({
               setSearchTerm(e.target.value);
               setCurrentPage(1);
             }}
-            className="h-10 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 pl-9 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
+            className="h-9 border border-[#e4e1db] bg-[#faf9f6] rounded-none pl-9 text-[#1a1a16] placeholder:text-[#9a958e] text-sm focus-visible:ring-[#5a7a52]/30"
           />
         </div>
 
+        {/* Type Filter */}
         <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="h-10 w-[120px] bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
+          <SelectTrigger className="h-9 w-[120px] border-[#e4e1db] bg-[#faf9f6] rounded-none text-[#6b6860] text-sm">
             <SelectValue placeholder="All Types" />
           </SelectTrigger>
-          <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="INCOME">Income</SelectItem>
-            <SelectItem value="EXPENSE">Expense</SelectItem>
+          <SelectContent className="bg-white border-[#e4e1db] rounded-none">
+            <SelectItem value="all" className="text-[#1a1a16] focus:bg-[#e8f0e4] text-sm">All</SelectItem>
+            <SelectItem value="INCOME" className="text-[#5a7a52] focus:bg-[#e8f0e4] text-sm">Income</SelectItem>
+            <SelectItem value="EXPENSE" className="text-[#c0714a] focus:bg-[#f5e8df] text-sm">Expense</SelectItem>
           </SelectContent>
         </Select>
 
+        {/* Recurring Filter */}
         <Select value={recurringFilter} onValueChange={setRecurringFilter}>
-          <SelectTrigger className="h-10 w-[150px] bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
+          <SelectTrigger className="h-9 w-[150px] border-[#e4e1db] bg-[#faf9f6] rounded-none text-[#6b6860] text-sm">
             <SelectValue placeholder="All Transactions" />
           </SelectTrigger>
-          <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="recurring">Recurring</SelectItem>
-            <SelectItem value="non-recurring">One-time</SelectItem>
+          <SelectContent className="bg-white border-[#e4e1db] rounded-none">
+            <SelectItem value="all" className="text-[#1a1a16] focus:bg-[#e8f0e4] text-sm">All</SelectItem>
+            <SelectItem value="recurring" className="text-[#1a1a16] focus:bg-[#e8f0e4] text-sm">Recurring</SelectItem>
+            <SelectItem value="non-recurring" className="text-[#1a1a16] focus:bg-[#e8f0e4] text-sm">One-time</SelectItem>
           </SelectContent>
         </Select>
 
+        {/* Clear Filters */}
         {(searchTerm || typeFilter || recurringFilter) && (
-          <Button
-            variant="ghost"
-            size="icon"
+          <button
             aria-label="Clear filters"
             onClick={() => {
               setSearchTerm("");
               setTypeFilter("");
               setRecurringFilter("");
             }}
-            className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            className="w-9 h-9 border border-[#e4e1db] text-[#9a958e] hover:border-[#c0714a] hover:text-[#c0714a] transition-colors flex items-center justify-center"
           >
-            <X className="h-4 w-4" />
-          </Button>
+            <X className="h-3.5 w-3.5" />
+          </button>
         )}
 
+        {/* Bulk Delete */}
         {seletedIds.length > 0 && (
-          <Button
-            variant="destructive"
-            size="sm"
+          <button
             onClick={() => deleteFn(seletedIds)}
-            className="bg-rose-600 hover:bg-rose-700"
+            className="flex items-center gap-2 bg-[#c0714a] hover:bg-[#a85e3a] text-white text-sm font-semibold px-4 h-9 transition-colors"
           >
-            <Trash className="h-4 w-4 mr-2" />
+            <Trash className="h-3.5 w-3.5" />
             Delete ({seletedIds.length})
-          </Button>
+          </button>
         )}
       </div>
 
-      {/* ---------------- Table ---------------- */}
-      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+      {/* ── Table ── */}
+      <div className="overflow-x-auto border border-[#e4e1db] bg-white shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead />
-              <TableHead onClick={() => handleSort("date")} className="cursor-pointer">
-                Date
+            <TableRow className="border-b border-[#e4e1db] bg-[#faf9f6] hover:bg-[#faf9f6]">
+              <TableHead className="w-10" />
+              <TableHead
+                onClick={() => handleSort("date")}
+                className="cursor-pointer text-[#9a958e] text-xs font-semibold uppercase tracking-wider hover:text-[#1a1a16] transition-colors"
+              >
+                <span className="flex items-center gap-1">
+                  Date <SortIcon field="date" />
+                </span>
               </TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead onClick={() => handleSort("category")} className="cursor-pointer">
-                Category
+              <TableHead className="text-[#9a958e] text-xs font-semibold uppercase tracking-wider">
+                Description
               </TableHead>
-              <TableHead onClick={() => handleSort("amount")} className="cursor-pointer">
-                Amount
+              <TableHead
+                onClick={() => handleSort("category")}
+                className="cursor-pointer text-[#9a958e] text-xs font-semibold uppercase tracking-wider hover:text-[#1a1a16] transition-colors"
+              >
+                <span className="flex items-center gap-1">
+                  Category <SortIcon field="category" />
+                </span>
               </TableHead>
-              <TableHead>Recurring</TableHead>
-              <TableHead />
+              <TableHead
+                onClick={() => handleSort("amount")}
+                className="cursor-pointer text-[#9a958e] text-xs font-semibold uppercase tracking-wider hover:text-[#1a1a16] transition-colors"
+              >
+                <span className="flex items-center gap-1">
+                  Amount <SortIcon field="amount" />
+                </span>
+              </TableHead>
+              <TableHead className="text-[#9a958e] text-xs font-semibold uppercase tracking-wider">
+                Recurring
+              </TableHead>
+              <TableHead className="w-10" />
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {paginatedTransactions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="py-6 text-center text-slate-500 dark:text-slate-400">
+                <TableCell
+                  colSpan={7}
+                  className="py-12 text-center text-sm text-[#9a958e]"
+                >
                   No transactions found.
                 </TableCell>
               </TableRow>
             ) : (
               paginatedTransactions.map((t) => (
-                <TableRow key={t.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <TableRow
+                  key={t.id}
+                  className="border-b border-[#f0ede8] hover:bg-[#faf9f6] transition-colors"
+                >
                   <TableCell>
                     <Checkbox
                       checked={seletedIds.includes(t.id)}
@@ -291,74 +308,75 @@ export default function TransactionTable({
                             : [...c, t.id]
                         )
                       }
+                      className="border-[#c8c4bb] data-[state=checked]:bg-[#5a7a52] data-[state=checked]:border-[#5a7a52]"
                     />
                   </TableCell>
 
-                  <TableCell className="text-slate-700 dark:text-slate-300 font-medium">
+                  <TableCell className="text-[#6b6860] text-sm font-medium">
                     {format(new Date(t.date), "PP")}
                   </TableCell>
 
-                  <TableCell className="text-slate-900 dark:text-white font-medium">
+                  <TableCell className="text-[#1a1a16] text-sm font-medium">
                     {t.description}
                   </TableCell>
 
                   <TableCell>
                     <span
                       style={{ background: categoryColors[t.category] }}
-                      className="rounded-full px-2.5 py-1 text-xs font-medium text-white shadow-sm"
+                      className="px-2.5 py-1 text-xs font-semibold text-white"
                     >
                       {t.category}
                     </span>
                   </TableCell>
 
                   <TableCell
-                    className={
+                    className={`text-sm font-bold ${
                       t.type === "INCOME"
-                        ? "text-emerald-600 dark:text-emerald-400 font-semibold"
-                        : "text-rose-600 dark:text-rose-400 font-semibold"
-                    }
+                        ? "text-[#5a7a52]"
+                        : "text-[#c0714a]"
+                    }`}
                   >
-                    {t.type === "INCOME" ? "+" : "-"}${t.amount}
+                    {t.type === "INCOME" ? "+" : "−"}${t.amount}
                   </TableCell>
 
                   <TableCell>
                     {t.isRecurring ? (
-                      <Badge className="gap-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800">
-                        <RefreshCw className="h-3 w-3" />
+                      <span className="inline-flex items-center gap-1 border border-[#5a7a52]/30 bg-[#e8f0e4] px-2 py-0.5 text-[10px] font-semibold text-[#3d5c35] uppercase tracking-wider">
+                        <RefreshCw className="h-2.5 w-2.5" />
                         {
                           RECURRING_INTERVALS[
                             t.recurringInterval as keyof typeof RECURRING_INTERVALS
                           ]
                         }
-                      </Badge>
+                      </span>
                     ) : (
-                      <Badge variant="outline" className="gap-1 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700">
-                        <Clock className="h-3 w-3" />
+                      <span className="inline-flex items-center gap-1 border border-[#e4e1db] px-2 py-0.5 text-[10px] font-semibold text-[#9a958e] uppercase tracking-wider">
+                        <Clock className="h-2.5 w-2.5" />
                         One-time
-                      </Badge>
+                      </span>
                     )}
                   </TableCell>
 
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+                        <button className="w-8 h-8 border border-transparent hover:border-[#e4e1db] text-[#9a958e] hover:text-[#1a1a16] transition-all flex items-center justify-center">
                           <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                        </button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                      <DropdownMenuContent className="bg-white border-[#e4e1db] rounded-none shadow-md">
                         <DropdownMenuItem
                           onClick={() =>
                             router.push(`/transactions/create?edit=${t.id}`)
                           }
-                          className="text-slate-700 dark:text-slate-300"
+                          className="text-[#1a1a16] text-sm focus:bg-[#e8f0e4] focus:text-[#3d5c35]"
                         >
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator />
+                        <DropdownMenuSeparator className="bg-[#f0ede8]" />
                         <DropdownMenuItem
                           onClick={() => deleteFn([t.id])}
-                          className="text-rose-600 dark:text-rose-400"
+                          className="text-[#c0714a] text-sm focus:bg-[#f5e8df]"
                         >
                           Delete
                         </DropdownMenuItem>
@@ -372,32 +390,28 @@ export default function TransactionTable({
         </Table>
       </div>
 
-      {/* ---------------- Pagination ---------------- */}
+      {/* ── Pagination ── */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 text-slate-600 dark:text-slate-400">
-          <Button
-            variant="outline"
-            size="icon"
+        <div className="flex items-center justify-center gap-3 text-[#6b6860]">
+          <button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((p) => p - 1)}
-            className="border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
+            className="w-9 h-9 border border-[#e4e1db] text-[#6b6860] hover:border-[#5a7a52] hover:text-[#5a7a52] disabled:opacity-30 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
           >
             <ChevronLeft className="h-4 w-4" />
-          </Button>
+          </button>
 
-          <span className="text-sm font-medium">
+          <span className="text-sm font-semibold text-[#1a1a16]">
             Page {currentPage} of {totalPages}
           </span>
 
-          <Button
-            variant="outline"
-            size="icon"
+          <button
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage((p) => p + 1)}
-            className="border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
+            className="w-9 h-9 border border-[#e4e1db] text-[#6b6860] hover:border-[#5a7a52] hover:text-[#5a7a52] disabled:opacity-30 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
           >
             <ChevronRight className="h-4 w-4" />
-          </Button>
+          </button>
         </div>
       )}
     </section>

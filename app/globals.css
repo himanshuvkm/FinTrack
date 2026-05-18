@@ -42,74 +42,65 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* ─── Olive / Off-Black Design System ─────────────────────────── */
 :root {
-  --radius: 0.75rem;
-  --background: oklch(0.99 0 0);
-  --foreground: oklch(0.15 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0 0);
-  --primary: oklch(0.55 0.22 250);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.96 0 0);
-  --secondary-foreground: oklch(0.15 0 0);
-  --muted: oklch(0.96 0 0);
-  --muted-foreground: oklch(0.5 0 0);
-  --accent: oklch(0.95 0.02 250);
-  --accent-foreground: oklch(0.15 0 0);
-  --destructive: oklch(0.6 0.22 25);
-  --border: oklch(0.92 0 0);
-  --input: oklch(0.96 0 0);
-  --ring: oklch(0.55 0.22 250);
-  --chart-1: oklch(0.6 0.22 250);
-  --chart-2: oklch(0.65 0.2 180);
-  --chart-3: oklch(0.7 0.18 140);
-  --chart-4: oklch(0.55 0.22 280);
-  --chart-5: oklch(0.6 0.2 200);
-  --sidebar: oklch(0.99 0 0);
-  --sidebar-foreground: oklch(0.15 0 0);
-  --sidebar-primary: oklch(0.55 0.22 250);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.96 0 0);
-  --sidebar-accent-foreground: oklch(0.15 0 0);
-  --sidebar-border: oklch(0.92 0 0);
-  --sidebar-ring: oklch(0.55 0.22 250);
+  --radius: 0.5rem;
+
+  /* Warm off-white background */
+  --background: #faf9f6;
+  --foreground: #1a1a16;
+
+  /* Cards */
+  --card: #ffffff;
+  --card-foreground: #1a1a16;
+
+  /* Popovers */
+  --popover: #ffffff;
+  --popover-foreground: #1a1a16;
+
+  /* Primary = olive green */
+  --primary: #5a7a52;
+  --primary-foreground: #faf9f6;
+
+  /* Secondary = warm stone */
+  --secondary: #f0ede8;
+  --secondary-foreground: #1a1a16;
+
+  /* Muted */
+  --muted: #f0ede8;
+  --muted-foreground: #9a958e;
+
+  /* Accent = soft olive tint */
+  --accent: #e8f0e4;
+  --accent-foreground: #3d5c35;
+
+  /* Destructive */
+  --destructive: #c0714a;
+
+  /* Borders / Input */
+  --border: #e4e1db;
+  --input: #f0ede8;
+  --ring: #5a7a52;
+
+  /* Charts — earthy palette */
+  --chart-1: #5a7a52;
+  --chart-2: #c0714a;
+  --chart-3: #8b7355;
+  --chart-4: #3d5c35;
+  --chart-5: #a89880;
+
+  /* Sidebar */
+  --sidebar: #faf9f6;
+  --sidebar-foreground: #1a1a16;
+  --sidebar-primary: #5a7a52;
+  --sidebar-primary-foreground: #faf9f6;
+  --sidebar-accent: #e8f0e4;
+  --sidebar-accent-foreground: #3d5c35;
+  --sidebar-border: #e4e1db;
+  --sidebar-ring: #5a7a52;
 }
 
-.dark {
-  --background: oklch(0.08 0 0);
-  --foreground: oklch(0.98 0 0);
-  --card: oklch(0.12 0 0);
-  --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.12 0 0);
-  --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.65 0.22 250);
-  --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.15 0 0);
-  --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.15 0 0);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.18 0.02 250);
-  --accent-foreground: oklch(0.98 0 0);
-  --destructive: oklch(0.65 0.22 25);
-  --border: oklch(0.2 0 0);
-  --input: oklch(0.15 0 0);
-  --ring: oklch(0.65 0.22 250);
-  --chart-1: oklch(0.65 0.22 250);
-  --chart-2: oklch(0.7 0.2 180);
-  --chart-3: oklch(0.75 0.18 140);
-  --chart-4: oklch(0.6 0.22 280);
-  --chart-5: oklch(0.65 0.2 200);
-  --sidebar: oklch(0.12 0 0);
-  --sidebar-foreground: oklch(0.98 0 0);
-  --sidebar-primary: oklch(0.65 0.22 250);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.15 0 0);
-  --sidebar-accent-foreground: oklch(0.98 0 0);
-  --sidebar-border: oklch(0.2 0 0);
-  --sidebar-ring: oklch(0.65 0.22 250);
-}
+/* ─── No separate .dark — single consistent theme ─────────────── */
 
 @layer base {
   * {
@@ -117,23 +108,37 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
   }
 }
 
 @layer utilities {
+  /* Olive gradient */
   .gradient {
-    @apply bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-600;
+    background: linear-gradient(135deg, #5a7a52, #3d5c35);
   }
 
+  /* Ink/olive gradient title */
   .gradient-title {
-    @apply font-extrabold tracking-tighter pr-2 pb-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600;
+    @apply font-extrabold tracking-tighter pr-2 pb-2 text-transparent bg-clip-text;
+    background-image: linear-gradient(135deg, #1a1a16, #5a7a52);
   }
 
+  /* Refined card */
   .saas-card {
-    @apply rounded-xl border border-slate-200/50 bg-white shadow-sm transition-all hover:shadow-md;
+    @apply rounded-none border border-[#e4e1db] bg-white shadow-sm transition-all hover:shadow-md hover:border-[#5a7a52]/30;
   }
 
-  .dark .saas-card {
-    @apply border-slate-800/50 bg-slate-900/50 hover:border-slate-700/50;
+  /* Olive accent dot */
+  .olive-dot {
+    @apply w-2 h-2 rounded-full bg-[#5a7a52];
+  }
+
+  /* Corner accent decoration */
+  .corner-tl {
+    @apply absolute -top-px -left-px w-4 h-4 border-t-2 border-l-2 border-[#5a7a52];
+  }
+  .corner-br {
+    @apply absolute -bottom-px -right-px w-4 h-4 border-b-2 border-r-2 border-[#c0714a];
   }
 }

@@ -1,226 +1,184 @@
-<a id="readme-top"></a>
-
-<p align="center">
-
-<a href="https://github.com/himanshuvkm/FinTrack/graphs/contributors">
-  <img src="https://img.shields.io/github/contributors/himanshuvkm/FinTrack.svg?style=for-the-badge" />
-</a>
-
-<a href="https://github.com/himanshuvkm/FinTrack/network/members">
-  <img src="https://img.shields.io/github/forks/himanshuvkm/FinTrack.svg?style=for-the-badge" />
-</a>
-
-<a href="https://github.com/himanshuvkm/FinTrack/stargazers">
-  <img src="https://img.shields.io/github/stars/himanshuvkm/FinTrack.svg?style=for-the-badge" />
-</a>
-
-<a href="https://github.com/himanshuvkm/FinTrack/issues">
-  <img src="https://img.shields.io/github/issues/himanshuvkm/FinTrack.svg?style=for-the-badge" />
-</a>
-
-<a href="https://github.com/himanshuvkm/FinTrack/blob/main/LICENSE">
-  <img src="https://img.shields.io/github/license/himanshuvkm/FinTrack.svg?style=for-the-badge" />
-</a>
-
-<a href="https://linkedin.com/in/himanshuvkm">
-  <img src="https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555" />
-</a>
-
-</p>
-
-
-<br />
-
 <div align="center">
-  <a href="https://github.com/himanshuvkm/FinTrack">
-    <img src="https://raw.githubusercontent.com/himanshuvkm/FinTrack/refs/heads/main/public/logo.png" alt="Logo" width="80" height="80">
-  </a>
+  <img src="https://raw.githubusercontent.com/himanshuvkm/FinTrack/refs/heads/main/public/logo.png" alt="FinTrack Logo" width="72" height="72" />
+  <h1>FinTrack</h1>
+  <p>An AI-powered personal finance platform — track expenses, automate recurring transactions, scan receipts, and get monthly insights powered by Gemini AI.</p>
 
-  <h3 align="center">FinTrack</h3>
+  <p>
+    <a href="https://fintrack-nine-wine.vercel.app"><strong>Live Demo →</strong></a>
+  </p>
 
-  <p align="center">
-    A full-stack AI-powered personal finance platform to track expenses, automate recurring transactions, manage budgets, and generate AI insights.
-    <br />
-    <a href="https://fintrack-nine-wine.vercel.app">View Demo</a>
+  <p>
+    <img src="https://img.shields.io/github/contributors/himanshuvkm/FinTrack.svg?style=flat-square" />
+    <img src="https://img.shields.io/github/stars/himanshuvkm/FinTrack.svg?style=flat-square" />
+    <img src="https://img.shields.io/github/forks/himanshuvkm/FinTrack.svg?style=flat-square" />
+    <img src="https://img.shields.io/github/issues/himanshuvkm/FinTrack.svg?style=flat-square" />
+    <img src="https://img.shields.io/github/license/himanshuvkm/FinTrack.svg?style=flat-square" />
   </p>
 </div>
 
 ---
 
-## About The Project
-
 [![Product Screenshot](https://github.com/himanshuvkm/FinTrack/blob/main/public/Preview.png?raw=true)](https://fintrack-nine-wine.vercel.app)
-
-FinTrack is an AI-powered personal finance platform that helps users track income & expenses, manage budgets, automate recurring transactions, analyze financial health, and receive monthly AI insights.
-
-### Why FinTrack?
-
-- Track income, expenses & budgets in one place  
-- Automate recurring transactions  
-- AI-powered receipt scanning  
-- Monthly financial reports with insights  
-- Budget alerts via email  
-- Interactive charts & dashboards  
-- Modern UI with secure authentication  
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ---
 
-## Built With
+## What is FinTrack?
 
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
-* ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma)
-* ![Tailwind](https://img.shields.io/badge/TailwindCSS-0EA5E9?style=for-the-badge&logo=tailwindcss&logoColor=white)
-* ![shadcn/ui](https://img.shields.io/badge/shadcn/ui-000000?style=for-the-badge)
-* ![Clerk](https://img.shields.io/badge/Clerk-3b82f6?style=for-the-badge&logo=clerk&logoColor=white)
-* ![Inngest](https://img.shields.io/badge/Inngest-000000?style=for-the-badge&logo=inngest&logoColor=white)
-* ![Gemini AI](https://img.shields.io/badge/Gemini_AI-4285F4?style=for-the-badge&logo=google)
-* ![Arcjet](https://img.shields.io/badge/Arcjet-6C47FF?style=for-the-badge)
-* ![Resend](https://img.shields.io/badge/Resend-000000?style=for-the-badge&logo=resend)
+FinTrack gives you a clear, real-time picture of your financial life. Log income and expenses, set budgets with alert thresholds, automate recurring payments, and let AI analyse your spending patterns — all in one place.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+---
+
+## Features
+
+| Feature | Description |
+|---|---|
+| **Dashboard** | Visual overview of income, expenses, and net balance with interactive charts |
+| **Transaction management** | Add, edit, and categorise transactions with full history |
+| **Budget tracking** | Set per-category budgets; receive email alerts when you approach limits |
+| **Recurring transactions** | Automate repeating income or expenses — daily, weekly, or monthly |
+| **AI receipt scanning** | Upload a receipt and Gemini AI extracts the amount, merchant, and category |
+| **Monthly AI reports** | Personalised financial health summaries delivered to your inbox each month |
+| **Secure auth** | Clerk-powered sign-in with social login and MFA support |
+| **Rate limiting** | Arcjet protects all API routes from abuse |
+
+---
+
+## Tech Stack
+
+**Frontend**
+- [Next.js 14](https://nextjs.org/) — App Router, Server Actions
+- [React](https://react.dev/) — UI library
+- [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/) — styling and components
+
+**Backend & Database**
+- [Supabase](https://supabase.com/) — managed Postgres database
+- [Prisma](https://www.prisma.io/) — type-safe ORM
+
+**Services**
+- [Clerk](https://clerk.com/) — authentication and user management
+- [Gemini AI](https://ai.google.dev/) — receipt scanning and monthly insights
+- [Inngest](https://www.inngest.com/) — background jobs for recurring transactions and reports
+- [Resend](https://resend.com/) — transactional email (budget alerts, monthly reports)
+- [Arcjet](https://arcjet.com/) — rate limiting and bot protection
 
 ---
 
 ## Getting Started
 
 ### Prerequisites
-* Node.js v18+
-* Supabase Project
-* Clerk Project
-* Gemini API Key
+
+- Node.js v18 or higher
+- A [Supabase](https://supabase.com/) project
+- A [Clerk](https://clerk.com/) project
+- A [Gemini AI](https://ai.google.dev/) API key
 
 ### Installation
 
-1. Clone the repo  
-```sh
+1. **Clone the repository**
+
+```bash
 git clone https://github.com/himanshuvkm/FinTrack.git
-   ```
-<h2>Installation</h2>
+cd FinTrack
+```
 
-<ol>
-  <li><strong>Install dependencies</strong>
-    <pre><code>npm install</code></pre>
-  </li>
+2. **Install dependencies**
 
-  <li><strong>Create <code>.env.local</code> and add required variables</strong>
-    <p>(See the <strong>Environment Variables</strong> section below.)</p>
-  </li>
+```bash
+npm install
+```
 
-  <li><strong>Start the server</strong>
-    <pre><code>npm run dev</code></pre>
-  </li>
-</ol>
+3. **Set up environment variables**
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+Create a `.env.local` file at the root of the project and fill in the values below.
 
-<hr />
+4. **Push the database schema**
 
-<!-- ENVIRONMENT VARIABLES -->
-<h2 id="environment-variables">Environment Variables</h2>
+```bash
+npx prisma db push
+```
 
-<h3>Clerk</h3>
-<pre><code>NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+5. **Start the development server**
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## Environment Variables
+
+```env
+# Clerk — https://dashboard.clerk.com
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 CLERK_SECRET_KEY=
 NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
 NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/onboarding
 NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/onboarding
-</code></pre>
 
-<h3>Supabase / Database</h3>
-<pre><code>DATABASE_URL=""
-DIRECT_URL=""
-</code></pre>
+# Supabase / Prisma — https://supabase.com/dashboard
+DATABASE_URL=
+DIRECT_URL=
 
-<h3>Arcjet</h3>
-<pre><code>ARCJET_KEY=""
-</code></pre>
+# Gemini AI — https://aistudio.google.com/app/apikey
+GEMINI_API_KEY=
 
-<h3>Email (Resend)</h3>
-<pre><code>RESEND_API_KEY=""
-</code></pre>
+# Resend — https://resend.com/api-keys
+RESEND_API_KEY=
 
-<h3>Gemini AI</h3>
-<pre><code>GEMINI_API_KEY=""
-</code></pre>
+# Inngest — https://app.inngest.com
+INNGEST_EVENT_KEY=
+INNGEST_SIGNING_KEY=
 
-<h3>Inngest</h3>
-<pre><code>INNGEST_EVENT_KEY=""
-INNGEST_SIGNING_KEY=""
-</code></pre>
+# Arcjet — https://app.arcjet.com
+ARCJET_KEY=
+```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+---
 
-<hr />
+## Project Structure
 
-<!-- CONTRIBUTING -->
-<h2>Contributing</h2>
+```
+fintrack/
+├── app/                  # Next.js App Router pages and layouts
+│   ├── (auth)/           # Sign-in / sign-up routes
+│   ├── (main)/           # Protected app routes (dashboard, accounts, transactions)
+│   └── api/              # API route handlers
+├── components/           # Shared UI components
+├── lib/                  # Utility functions, Prisma client, AI helpers
+├── inngest/              # Background job definitions
+├── prisma/               # Prisma schema and migrations
+└── public/               # Static assets
+```
 
-<p>
-  Contributions are what make open source such a powerful place to learn, build, and grow.
-  Whether it's a bug report, new feature, improvement, or documentation fix —
-  all contributions are <strong>welcome</strong>.
-</p>
+---
 
-<ol>
-  <li>Fork the repository</li>
-  <li>Create your feature branch<br><code>git checkout -b feature/AmazingFeature</code></li>
-  <li>Commit your changes<br><code>git commit -m "Add AmazingFeature"</code></li>
-  <li>Push to your branch<br><code>git push origin feature/AmazingFeature</code></li>
-  <li>Open a Pull Request</li>
-</ol>
+## Contributing
 
-<h3>Current Contributors</h3>
-<p>There are no contributors yet — be the <strong>first to contribute</strong> and help FinTrack grow! 🚀</p>
+Contributions are welcome — bug reports, feature requests, documentation improvements, and code all help.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit your changes: `git commit -m "feat: add your feature"`
+4. Push to your branch: `git push origin feature/your-feature`
+5. Open a Pull Request
 
-<hr />
+Please follow [Conventional Commits](https://www.conventionalcommits.org/) for commit messages where possible.
 
-<!-- LICENSE -->
-<h2>License</h2>
+---
 
-<p>
-  Distributed under the <strong>MIT License</strong>.<br />
-  See <code>LICENSE</code> for more details.
-</p>
+## License
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+Distributed under the **MIT License**. See [`LICENSE`](./LICENSE) for details.
 
-<hr />
+---
 
-<!-- CONTACT -->
-<h2>Contact</h2>
+## Contact
 
-<p><strong>Himanshu Vishwakarma</strong></p>
-<p>📧 Email: <strong>himanshuvkm252@gmail.com</strong></p>
-
-<p>Project Link:<br>
-  <a href="https://github.com/himanshuvkm/FinTrack">https://github.com/himanshuvkm/FinTrack</a>
-</p>
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<hr />
-
-<!-- ACKNOWLEDGMENTS -->
-<h2>Acknowledgments</h2>
-
-<p>FinTrack was built using a combination of powerful tools and open-source technologies.</p>
-
-<p>Special thanks to:</p>
-
-<ul>
-  <li><strong>Next.js & React</strong> — modern, intuitive frontend foundation</li>
-  <li><strong>Supabase & Prisma</strong> — database + ORM that work beautifully together</li>
-  <li><strong>Tailwind CSS & Shadcn UI</strong> — for expressive, modern UI styling</li>
-  <li><strong>Clerk, Inngest, Arcjet, Resend, Gemini AI</strong> — for authentication, automation, security, email, and intelligence</li>
-  <li><strong>shields.io</strong> — for beautiful README badges</li>
-  <li><strong>The open-source community</strong> — for continuous inspiration & innovation</li>
-</ul>
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+**Himanshu Vishwakarma**
+- Email: himanshuvkm252@gmail.com
+- GitHub: [@himanshuvkm](https://github.com/himanshuvkm)
+- LinkedIn: [himanshuvkm](https://linkedin.com/in/himanshuvkm)
+- Project: [github.com/himanshuvkm/FinTrack](https://github.com/himanshuvkm/FinTrack)

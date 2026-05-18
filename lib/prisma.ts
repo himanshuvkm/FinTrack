@@ -1,17 +1,18 @@
-import { PrismaClient } from '@prisma/client'
-import { withAccelerate } from '@prisma/extension-accelerate'
+import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-const globalForPrisma = global as unknown as { 
-    prisma: PrismaClient
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+function createPrismaClient() {
+  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+  return new PrismaClient({ adapter });
 }
 
-const prismaDb = globalForPrisma.prisma || new PrismaClient().$extends(withAccelerate())
+export const db =
+  globalForPrisma.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prismaDb
-
-export default prismaDb;
-
-// globalForPrisma.prisma: This global variable ensures that the Prisma client instance is
-// reused across hot reloads during development. Without this, each time your application
-// reloads, a new instance of the Prisma client would be created, potentially leading
-// to connection issues.
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = db;
+}

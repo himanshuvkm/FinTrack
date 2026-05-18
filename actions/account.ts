@@ -1,5 +1,5 @@
 "use server";
-import prismaDb from "@/lib/prisma";
+import { db as prismaDb } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
