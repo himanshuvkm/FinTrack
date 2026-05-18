@@ -1,5 +1,5 @@
 import { inngest } from "./client";
-import prismaDb from "@/lib/prisma";
+import { db as prismaDb } from "@/lib/prisma";
 import EmailTemplate from "@/emails/template";
 import { sendEmail } from "@/actions/send-email";
 import { GoogleGenAI } from "@google/genai";
