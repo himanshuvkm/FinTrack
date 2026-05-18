@@ -1,5 +1,6 @@
 "use server";
 import { db as prismaDb } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
@@ -139,7 +140,7 @@ export async function bulkDeleteTransactions(transactionIds: string[]) {
     }
 
     // Perform everything in ONE DB transaction
-    await prismaDb.$transaction(async (tx) => {
+    await prismaDb.$transaction(async (tx: Prisma.TransactionClient) => {
       // 1. Delete all selected transactions
       await tx.transaction.deleteMany({
         where: { id: { in: transactionIds }, userId: User.id },

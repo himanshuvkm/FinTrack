@@ -1,5 +1,6 @@
 "use server";
 import { db as prismaDb } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { subDays } from "date-fns";
 
 const ACCOUNT_ID: string = "14b8fa49-e825-4519-b017-e5319d5cfe15";
@@ -88,7 +89,7 @@ export async function seedTransactions(): Promise<SeedResponse> {
     }
 
     // Insert transactions
-    await prismaDb.$transaction(async (tx) => {
+    await prismaDb.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.transaction.deleteMany({ where: { accountId: ACCOUNT_ID } });
 
       await tx.transaction.createMany({

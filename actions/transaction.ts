@@ -1,13 +1,13 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import { db as prismaprismaDb } from "@/lib/prisma";
+import { db as prismaDb } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { request } from "@arcjet/next"
 import { aj } from "@/lib/arcjet";
 import { NextRequest } from "next/server";
 import { GoogleGenAI } from "@google/genai";
-import { db as prismaDb } from "@/lib/prisma";
 
 export type FormDataTransaction = {
   type: "INCOME" | "EXPENSE";
@@ -59,7 +59,7 @@ export async function createTransaction(data: FormDataTransaction) {
 
 
 
-    const user = await prismaprismaDb.user.findUnique({
+    const user = await prismaDb.user.findUnique({
       where: { clerkUserId: userId },
     });
 
@@ -67,7 +67,7 @@ export async function createTransaction(data: FormDataTransaction) {
       throw new Error("User not found");
     }
 
-    const account = await prismaprismaDb.account.findUnique({
+    const account = await prismaDb.account.findUnique({
       where: {
         id: data.accountId,
         userId: user.id,
@@ -83,7 +83,7 @@ export async function createTransaction(data: FormDataTransaction) {
     const newBalance = account.balance.toNumber() + balanceChange;
 
     // Create transaction and update account balance
-    const transaction = await prismaprismaDb.$transaction(async (tx) => {
+    const transaction = await prismaDb.$transaction(async (tx: Prisma.TransactionClient) => {
       const newTransaction = await tx.transaction.create({
         data: {
           ...data,
@@ -258,7 +258,7 @@ export async function updateTransaction(id: any, data: FormDataTransaction) {
     const netBalanceChange = newBalanceChange - oldBalanceChange;
 
     // Update transaction and account balance in a transaction
-    const transaction = await prismaDb.$transaction(async (tx) => {
+    const transaction = await prismaDb.$transaction(async (tx: Prisma.TransactionClient) => {
       const updated = await tx.transaction.update({
         where: {
           id,

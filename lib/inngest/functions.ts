@@ -1,5 +1,6 @@
 import { inngest } from "./client";
 import { db as prismaDb } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import EmailTemplate from "@/emails/template";
 import { sendEmail } from "@/actions/send-email";
 import { GoogleGenAI } from "@google/genai";
@@ -205,7 +206,7 @@ export const processRecurringTransaction = inngest.createFunction(
       if (!transaction || !isTransactionDue(transaction)) return;
 
       // Create new transaction and update account balance in a transaction
-      await prismaDb.$transaction(async (tx) => {
+      await prismaDb.$transaction(async (tx: Prisma.TransactionClient) => {
         // Create new transaction
         await tx.transaction.create({
           data: {
