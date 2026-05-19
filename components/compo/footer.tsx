@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import React from 'react';
-import { FaGithub, FaTwitter, FaLinkedin, FaEnvelope } from 'react-icons/fa';
-import { motion } from 'framer-motion';
+import React from "react";
+import { FaGithub, FaTwitter, FaLinkedin, FaEnvelope } from "react-icons/fa";
+import { motion } from "framer-motion";
 
 export default function FintrackFooter() {
   const currentYear = new Date().getFullYear();
@@ -23,13 +23,12 @@ export default function FintrackFooter() {
 
   return (
     <footer className="relative overflow-hidden border-t border-[#1a1a16]/10 bg-[#faf9f6] py-12">
-
       {/* Dot grid texture */}
       <div
         className="absolute inset-0 opacity-[0.25]"
         style={{
           backgroundImage: `radial-gradient(circle, #c8c4bb 1px, transparent 1px)`,
-          backgroundSize: '32px 32px',
+          backgroundSize: "32px 32px",
         }}
       />
 
@@ -57,7 +56,10 @@ export default function FintrackFooter() {
           </motion.div>
 
           {/* Divider line with accents */}
-          <motion.div variants={itemVariants} className="flex items-center gap-3 w-full max-w-xs">
+          <motion.div
+            variants={itemVariants}
+            className="flex items-center gap-3 w-full max-w-xs"
+          >
             <div className="flex-1 h-px bg-[#5a7a52]/30" />
             <div className="w-1.5 h-1.5 bg-[#5a7a52] rounded-full" />
             <div className="flex-1 h-px bg-[#5a7a52]/30" />
@@ -66,10 +68,26 @@ export default function FintrackFooter() {
           {/* Social Icons */}
           <motion.div variants={itemVariants} className="flex gap-4">
             {[
-              { icon: FaGithub, href: '#', label: 'GitHub' },
-              { icon: FaTwitter, href: '#', label: 'Twitter' },
-              { icon: FaLinkedin, href: '#', label: 'LinkedIn' },
-              { icon: FaEnvelope, href: '#', label: 'Email' },
+              {
+                icon: FaGithub,
+                href: "https://github.com/himanshuvkm",
+                label: "GitHub",
+              },
+              {
+                icon: FaTwitter,
+                href: "https://twitter.com/himanshu_9148",
+                label: "Twitter",
+              },
+              {
+                icon: FaLinkedin,
+                href: "https://linkedin.com/in/himanshuvkm",
+                label: "LinkedIn",
+              },
+              {
+                icon: FaEnvelope,
+                href: "mailto:himanshuvkm252@gmail.com",
+                label: "Email",
+              },
             ].map((social, index) => (
               <motion.a
                 key={index}
@@ -85,14 +103,17 @@ export default function FintrackFooter() {
           </motion.div>
 
           {/* Links */}
-          <motion.div variants={itemVariants} className="flex items-center gap-6">
-            {['Privacy Policy', 'Terms of Service', 'Help'].map((link) => (
+          <motion.div
+            variants={itemVariants}
+            className="flex items-center gap-6"
+          >
+            {["Privacy Policy", "Terms of Service", "Help"].map((link) => (
               <motion.a
                 key={link}
                 href="#"
                 className="text-xs text-[#9a958e] hover:text-[#3d5c35] font-medium tracking-wide uppercase transition-colors"
                 whileHover={{ scale: 1.03 }}
-                style={{ display: 'inline-block' }}
+                style={{ display: "inline-block" }}
               >
                 {link}
               </motion.a>

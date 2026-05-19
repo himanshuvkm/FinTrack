@@ -3,7 +3,7 @@
   <p>An AI-powered personal finance platform — track expenses, automate recurring transactions, scan receipts, and get monthly insights powered by Gemini AI.</p>
 
   <p>
-    <a href="https://fintrack-nine-wine.vercel.app"><strong>Live Demo →</strong></a>
+    <a href="https://finnntrack.vercel.app"><strong>Live Demo →</strong></a>
   </p>
 
   <p>
@@ -17,7 +17,7 @@
 
 ---
 
-[![Product Screenshot](https://github.com/himanshuvkm/FinTrack/blob/main/public/Preview.png?raw=true)](https://fintrack-nine-wine.vercel.app)
+[![Product Screenshot](https://github.com/himanshuvkm/FinTrack/blob/main/public/Preview.png?raw=true)](https://finnntrack.vercel.app)
 
 ---
 
