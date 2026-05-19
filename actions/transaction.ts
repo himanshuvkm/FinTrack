@@ -2,7 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { db as prismaDb } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { request } from "@arcjet/next"
 import { aj } from "@/lib/arcjet";

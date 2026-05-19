@@ -1,9 +1,10 @@
 import { inngest } from "./client";
 import { db as prismaDb } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 import EmailTemplate from "@/emails/template";
 import { sendEmail } from "@/actions/send-email";
 import { GoogleGenAI } from "@google/genai";
+
+type TxClient = Parameters<Parameters<typeof prismaDb.$transaction>[0]>[0];
 
 
 type TransactionRow = {
@@ -34,9 +35,9 @@ type BudgetAlertData = {
 /***** Helper runtime type guards *****/
 function toNumber(amount: number | { toNumber: () => number }): number {
   if (typeof amount === "number") return amount;
-  if (typeof (amount )?.toNumber === "function") {
-  
-    return (amount ).toNumber();
+  if (typeof (amount)?.toNumber === "function") {
+
+    return (amount).toNumber();
   }
   if (typeof (amount as { toNumber?: unknown })?.toNumber === "function") {
     return (amount as { toNumber: () => number }).toNumber();
@@ -53,8 +54,7 @@ function isStringArray(value: unknown): value is string[] {
 
 
 export const checkBudgetAlerts = inngest.createFunction(
-   { id: "check-budget-alerts", name: "Check Budget Alerts" },
-  { cron: "0 */6 * * *" }, // Runs every 6 hours
+  { id: "check-budget-alerts", name: "Check Budget Alerts", triggers: [{ cron: "0 */6 * * *" }] },
   async ({ step }) => {
     const budgets = await step.run("fetch-budgets", async () => {
       return prismaDb.budget.findMany({
@@ -133,8 +133,8 @@ export const triggerRecurringTransactions = inngest.createFunction(
   {
     id: "trigger-recurring-transactions", // Unique ID,
     name: "Trigger Recurring Transactions",
+    triggers: [{ cron: "0 0 * * *" }],
   },
-  { cron: "0 0 * * *" }, // Daily at midnight
   async ({ step }) => {
     const recurringTransactions = await step.run(
       "fetch-recurring-transactions",
@@ -183,8 +183,8 @@ export const processRecurringTransaction = inngest.createFunction(
       period: "1m", // per minute
       key: "event.data.userId", // Throttle per user
     },
+    triggers: [{ event: "transaction.recurring.process" }],
   },
-  { event: "transaction.recurring.process" },
   async ({ event, step }) => {
     // Validate event data
     if (!event?.data?.transactionId || !event?.data?.userId) {
@@ -206,49 +206,49 @@ export const processRecurringTransaction = inngest.createFunction(
       if (!transaction || !isTransactionDue(transaction)) return;
 
       // Create new transaction and update account balance in a transaction
-      await prismaDb.$transaction(async (tx: Prisma.TransactionClient) => {
-        // Create new transaction
-        await tx.transaction.create({
-          data: {
-            type: transaction.type,
-            amount: transaction.amount,
-            description: `${transaction.description} (Recurring)`,
-            date: new Date(),
-            category: transaction.category,
-            userId: transaction.userId,
-            accountId: transaction.accountId,
-            isRecurring: false,
-          },
-        });
+      await prismaDb.$transaction(async (tx: any) => {
+          // Create new transaction
+          await tx.transaction.create({
+            data: {
+              type: transaction.type,
+              amount: transaction.amount,
+              description: `${transaction.description} (Recurring)`,
+              date: new Date(),
+              category: transaction.category,
+              userId: transaction.userId,
+              accountId: transaction.accountId,
+              isRecurring: false,
+            },
+          });
 
-        // Update account balance
-        const balanceChange =
-          transaction.type === "EXPENSE"
-            ? -transaction.amount.toNumber()
-            : transaction.amount.toNumber();
+          // Update account balance
+          const balanceChange =
+            transaction.type === "EXPENSE"
+              ? -toNumber(transaction.amount)
+              : toNumber(transaction.amount);
 
-        await tx.account.update({
-          where: { id: transaction.accountId },
-          data: { balance: { increment: balanceChange } },
-        });
+          await tx.account.update({
+            where: { id: transaction.accountId },
+            data: { balance: { increment: balanceChange } },
+          });
 
-        // Update last processed date and next recurring date
-        await tx.transaction.update({
-          where: { id: transaction.id },
-          data: {
-            lastProcessed: new Date(),
-            nextRecurringDate: calculateNextRecurringDate(
-              new Date(),
-              transaction.recurringInterval
-            ),
-          },
+          // Update last processed date and next recurring date
+          await tx.transaction.update({
+            where: { id: transaction.id },
+            data: {
+              lastProcessed: new Date(),
+              nextRecurringDate: calculateNextRecurringDate(
+                new Date(),
+                transaction.recurringInterval
+              ),
+            },
+          });
         });
-      });
     });
   }
 );
 
-function calculateNextRecurringDate(date : Date, interval: any) {
+function calculateNextRecurringDate(date: Date, interval: any) {
   const next = new Date(date);
   switch (interval) {
     case "DAILY":
@@ -267,7 +267,7 @@ function calculateNextRecurringDate(date : Date, interval: any) {
   return next;
 }
 
-function isNewMonth(lastAlertDate:Date, currentDate:Date) {
+function isNewMonth(lastAlertDate: Date, currentDate: Date) {
   return (
     lastAlertDate.getMonth() !== currentDate.getMonth() ||
     lastAlertDate.getFullYear() !== currentDate.getFullYear()
@@ -288,14 +288,14 @@ function isTransactionDue(transaction: any) {
 export async function generateFinancialInsights(
   stats: MonthlyStats,
   month: string
-){
-  const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+) {
+  const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
   const expenseList =
     stats.byCategory && Object.keys(stats.byCategory).length > 0
       ? Object.entries(stats.byCategory)
-          .map(([category, amount]) => `${category}: $${amount}`)
-          .join(", ")
+        .map(([category, amount]) => `${category}: $${amount}`)
+        .join(", ")
       : "No expense categories available";
 
   const prompt = `
@@ -314,14 +314,14 @@ export async function generateFinancialInsights(
     Output purely the JSON array of strings.
   `;
 
- try {
-  const result = await genAI.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents: prompt, 
-  });
-   console.log(result)
-   const text = await result.text || " " ;
-   const cleanedText = text.match(/\[[\s\S]*\]/);
+  try {
+    const result = await genAI.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
+    console.log(result)
+    const text = await result.text || " ";
+    const cleanedText = text.match(/\[[\s\S]*\]/);
 
     return JSON.parse(cleanedText ? cleanedText[0] : '[]');
   } catch (error) {
@@ -384,8 +384,8 @@ export const generateMonthlyReports = inngest.createFunction(
   {
     id: "generate-monthly-reports",
     name: "Generate Monthly Reports",
+    triggers: [{ cron: "0 0 1 * *" }],
   },
-  { cron: "0 0 1 * *" }, // First day of each month at 00:00
   async ({ step }: { step: any }) => {
     const users = await step.run("fetch-users", async () => {
       return await prismaDb.user.findMany({
