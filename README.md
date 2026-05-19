@@ -1,5 +1,4 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/himanshuvkm/FinTrack/refs/heads/main/public/logo.png" alt="FinTrack Logo" width="72" height="72" />
   <h1>FinTrack</h1>
   <p>An AI-powered personal finance platform — track expenses, automate recurring transactions, scan receipts, and get monthly insights powered by Gemini AI.</p>
 

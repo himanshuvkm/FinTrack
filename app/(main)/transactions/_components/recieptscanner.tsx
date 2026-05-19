@@ -77,7 +77,7 @@ useEffect(() => {
 
   return (
 
-<div className="px-4 bg-gradient-to-r from-blue-50/40 to-emerald-50/40 backdrop-blur-sm  flex gap-4">
+<div className="px-4 flex gap-4 bg-background pb-4 pt-2">
 
   <input
     type="file"
@@ -92,17 +92,16 @@ useEffect(() => {
   />
 
   <motion.div
-    whileHover={{ scale: 1.03 }}
-    whileTap={{ scale: 0.97 }}
+    whileHover={{ scale: 1.01 }}
+    whileTap={{ scale: 0.99 }}
     className="w-full"
   >
     <Button
       type="button"
       className="
-        w-full h-12 rounded-lg
-        bg-gradient-to-r from-blue-600 to-emerald-500
-        shadow-md text-white
-        hover:opacity-95 transition
+        w-full h-12
+        gradient shadow-md text-primary-foreground
+        hover:opacity-90 transition
         flex items-center justify-center gap-2
       "
       onClick={() => fileInputRef.current?.click()}
