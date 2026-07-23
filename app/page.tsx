@@ -355,25 +355,25 @@ export default function HomePage() {
             </p>
 
             {/* CTA buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/dashboard">
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <button className="px-10 py-4 bg-[#5a7a52] hover:bg-[#3d5c35] text-[#faf9f6] text-sm font-bold tracking-wide uppercase transition-all flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center">
+              <Link href="/dashboard" className="w-full sm:w-auto">
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full">
+                  <button className="w-full sm:w-auto px-10 py-4 bg-[#5a7a52] hover:bg-[#3d5c35] text-[#faf9f6] text-sm font-bold tracking-wide uppercase transition-all flex items-center justify-center gap-2">
                     Start Free Trial
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </motion.div>
               </Link>
-              <Link href="#features">
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <button className="px-10 py-4 border border-[#faf9f6]/20 hover:border-[#faf9f6]/40 text-[#faf9f6] hover:bg-[#faf9f6]/5 text-sm font-bold tracking-wide uppercase transition-all">
+              <Link href="#features" className="w-full sm:w-auto">
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full">
+                  <button className="w-full sm:w-auto px-10 py-4 border border-[#faf9f6]/20 hover:border-[#faf9f6]/40 text-[#faf9f6] hover:bg-[#faf9f6]/5 text-sm font-bold tracking-wide uppercase transition-all flex items-center justify-center">
                     See Features
                   </button>
                 </motion.div>
               </Link>
             </div>
 
-            <p className="text-[#6b6860] text-xs mt-6 uppercase tracking-widest">
+            <p className="text-[#6b6860] text-xs mt-6 uppercase tracking-widest px-4">
               No credit card required · 14-day free trial
             </p>
           </motion.div>

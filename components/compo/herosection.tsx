@@ -70,18 +70,18 @@ export default function Herosection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.34 }}
-            className="flex flex-col sm:flex-row gap-3 mb-14"
+            className="flex flex-col sm:flex-row gap-3 mb-14 w-full sm:w-auto items-stretch sm:items-center justify-center px-4 sm:px-0"
           >
-            <Link href="/dashboard">
-              <Button className="px-8 py-6 text-sm font-bold bg-[#1a1a16] hover:bg-[#2e2e28] text-[#faf9f6] rounded-none border-0 transition-all tracking-wide">
+            <Link href="/dashboard" className="w-full sm:w-auto">
+              <Button className="w-full sm:w-auto px-8 py-6 text-sm font-bold bg-[#1a1a16] hover:bg-[#2e2e28] text-[#faf9f6] rounded-none border-0 transition-all tracking-wide flex items-center justify-center">
                 Get Started Free
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
-            <Link href="#features">
+            <Link href="#features" className="w-full sm:w-auto">
               <Button
                 variant="outline"
-                className="px-8 py-6 text-sm font-bold rounded-none border border-[#1a1a16]/20 text-[#1a1a16] hover:bg-[#1a1a16]/5 bg-transparent transition-all tracking-wide"
+                className="w-full sm:w-auto px-8 py-6 text-sm font-bold rounded-none border border-[#1a1a16]/20 text-[#1a1a16] hover:bg-[#1a1a16]/5 bg-transparent transition-all tracking-wide flex items-center justify-center"
               >
                 See Features
               </Button>
